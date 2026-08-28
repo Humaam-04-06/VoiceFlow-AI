@@ -23,7 +23,17 @@ VoiceFlow AI is laser-focused on the 3 industry-leading foundation models:
 | 🧠 **Anthropic Claude** | `claude-3-5-sonnet` | 1. Go to [Anthropic Console](https://console.anthropic.com/settings/keys)<br>2. Generate an API Key<br>3. Paste into VoiceFlow Settings. |
 
 > [!IMPORTANT]
-> **Universal SweetAlert Key Guard**: Whenever a user clicks **"Ask AI"**, **"Fix Grammar"**, **"Summarize"**, **"Translate"**, **"Repurpose"**, or **"Babel Mode"**, if no API key is detected, VoiceFlow immediately presents a guided SweetAlert modal with direct links and instructions on how to get their key in 10 seconds!
+> **Universal SweetAlert Key Guard Everywhere**:
+> Whenever a user clicks any AI-powered feature or tab without an active API key, VoiceFlow immediately presents a guided SweetAlert modal with direct links and instructions on how to get their key in 10 seconds.
+> 
+> **Guarded Features**:
+> 1. 🪄 **Polished Tab & Fix Grammar Button**
+> 2. 📑 **Summary Tab & Summarize Button**
+> 3. 🌐 **Translate Button & Multilingual Selector**
+> 4. 🧠 **Mindmap Tab & Generate Mindmap Button**
+> 5. 📢 **Repurpose Tab & Format Buttons** (Email, Twitter, LinkedIn, MoM, Flashcards, Blog)
+> 6. 💬 **Ask AI Transcript Chat**
+> 7. 🗣️ **2-Way Babel Universal Translator**
 
 ---
 
@@ -51,7 +61,7 @@ VoiceFlow AI is laser-focused on the 3 industry-leading foundation models:
 - **Live Reactive Waveform**: 48-band frequency spectrum visualizer with glowing neon caps.
 
 ### 2. 🛡️ Universal SweetAlert API Key Guard & Quick Setup
-- Automatically guards all AI features (**Ask AI**, **Fix Grammar**, **Summarize**, **Translate**, **Repurpose**, **Babel Mode**), popping up an alert with 1-click key guides if no key is entered.
+- Automatically guards all AI features and tabs (**Polished**, **Summary**, **Translate**, **Mindmap**, **Repurpose**, **Ask AI**, **Babel Mode**), popping up an alert with 1-click key guides if no key is entered.
 
 ### 3. 🌐 2-Way "Babel Mode" (Live Duplex Universal Translator)
 - Two people speaking different languages into one device. Transcribes, translates, and speaks aloud using Neural TTS.
@@ -97,20 +107,20 @@ Voice_To_Text_App/
 │   │   │   ├── layout.tsx         # Root layout with Font Awesome CSS & SEO
 │   │   │   └── page.tsx           # Main application page
 │   │   ├── components/            # UI Components with Font Awesome SVG icons
-│   │   │   ├── ApiKeyRequiredModal.tsx    # SweetAlert API key guard & guide
+│   │   │   ├── ApiKeyRequiredModal.tsx    # Universal SweetAlert API key guard
 │   │   │   ├── AudioFileUploadModal.tsx   # File & Video URL importer
 │   │   │   ├── AudioPlaybackPlayer.tsx    # Real voice replay & EQ presets
 │   │   │   ├── BabelTranslatorModal.tsx   # 2-Way live duplex translator
 │   │   │   ├── ChatDrawer.tsx             # Ask AI transcript chat
 │   │   │   ├── HeroRecordingZone.tsx
 │   │   │   ├── HistoryDrawer.tsx          # Semantic Voice Vault search
-│   │   │   ├── MindmapViewer.tsx
+│   │   │   ├── MindmapViewer.tsx          # Concept mindmap generator
 │   │   │   ├── Navbar.tsx                 # Gemini, GPT, Claude switcher
 │   │   │   ├── SettingsModal.tsx          # Key settings with step-by-step guides
 │   │   │   ├── SpeechCoachWidget.tsx
 │   │   │   ├── TheaterSubtitleModal.tsx   # Floating dual subtitles
 │   │   │   ├── ToneSentimentRadar.tsx     # Live emotional mood & tone HUD
-│   │   │   ├── TranscriptionWorkspace.tsx # Workspace & MoM PDF exporter
+│   │   │   ├── TranscriptionWorkspace.tsx # Workspace, tabs, & MoM PDF exporter
 │   │   │   ├── VoiceMacroActionBoard.tsx  # Spoken triggers & Kanban tasks
 │   │   │   └── WaveformVisualizer.tsx
 │   │   ├── hooks/

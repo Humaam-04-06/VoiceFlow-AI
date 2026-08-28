@@ -131,8 +131,8 @@ export const TranscriptionWorkspace: React.FC = () => {
 
   // AI Transformations
   const handleFixGrammar = async () => {
+    if (!checkApiKey('Fix Grammar & Polishing')) return;
     if (!rawTranscript.trim()) return;
-    if (!checkApiKey('Fix Grammar')) return;
 
     setIsAiProcessing(true, 'Fixing Grammar & Eliminating Filler Words...');
     try {
@@ -152,8 +152,8 @@ export const TranscriptionWorkspace: React.FC = () => {
   };
 
   const handleSummarize = async () => {
+    if (!checkApiKey('AI Summary & Action Items')) return;
     if (!rawTranscript.trim()) return;
-    if (!checkApiKey('Summarize & Extract Tasks')) return;
 
     setIsAiProcessing(true, 'Extracting Key Takeaways & Action Items...');
     try {
@@ -174,8 +174,8 @@ export const TranscriptionWorkspace: React.FC = () => {
   };
 
   const handleTranslate = async () => {
-    if (!rawTranscript.trim()) return;
     if (!checkApiKey('Multilingual Translation')) return;
+    if (!rawTranscript.trim()) return;
 
     const targetLangObj = SUPPORTED_LANGUAGES.find(l => l.code === targetLang);
     setIsAiProcessing(true, `Translating to ${targetLangObj?.name || targetLang}...`);
@@ -197,8 +197,8 @@ export const TranscriptionWorkspace: React.FC = () => {
   };
 
   const handleRepurpose = async (format: RepurposeFormat) => {
-    if (!rawTranscript.trim()) return;
     if (!checkApiKey(`Repurpose to ${format.replace('-', ' ')}`)) return;
+    if (!rawTranscript.trim()) return;
 
     setRepurposeFormat(format);
     setIsAiProcessing(true, `Repurposing to ${format.replace('-', ' ')}...`);
@@ -420,7 +420,13 @@ export const TranscriptionWorkspace: React.FC = () => {
             Tone Radar
           </button>
           <button
-            onClick={() => setActiveWorkspaceTab('polished')}
+            onClick={() => {
+              if (!hasAnyApiKey() && !polishedTranscript && !translatedText) {
+                triggerKeyRequiredModal('Polished AI (Fix Grammar)');
+                return;
+              }
+              setActiveWorkspaceTab('polished');
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'polished'
                 ? 'bg-neutral-800 text-white shadow-sm'
@@ -431,7 +437,13 @@ export const TranscriptionWorkspace: React.FC = () => {
             Polished
           </button>
           <button
-            onClick={() => setActiveWorkspaceTab('summary')}
+            onClick={() => {
+              if (!hasAnyApiKey() && !summary) {
+                triggerKeyRequiredModal('AI Summary & Key Takeaways');
+                return;
+              }
+              setActiveWorkspaceTab('summary');
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'summary'
                 ? 'bg-neutral-800 text-white shadow-sm'
@@ -442,7 +454,13 @@ export const TranscriptionWorkspace: React.FC = () => {
             Summary
           </button>
           <button
-            onClick={() => setActiveWorkspaceTab('mindmap')}
+            onClick={() => {
+              if (!hasAnyApiKey() && !mindmapCode) {
+                triggerKeyRequiredModal('Concept Mindmap Generator');
+                return;
+              }
+              setActiveWorkspaceTab('mindmap');
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'mindmap'
                 ? 'bg-neutral-800 text-white shadow-sm'
@@ -453,7 +471,13 @@ export const TranscriptionWorkspace: React.FC = () => {
             Mindmap
           </button>
           <button
-            onClick={() => setActiveWorkspaceTab('repurpose')}
+            onClick={() => {
+              if (!hasAnyApiKey() && !repurposedContent) {
+                triggerKeyRequiredModal('AI Content Repurposing');
+                return;
+              }
+              setActiveWorkspaceTab('repurpose');
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'repurpose'
                 ? 'bg-neutral-800 text-white shadow-sm'
@@ -516,8 +540,14 @@ export const TranscriptionWorkspace: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2">
           {/* Fix Grammar */}
           <button
-            onClick={handleFixGrammar}
-            disabled={!rawTranscript.trim() || isAiProcessing}
+            onClick={() => {
+              if (!hasAnyApiKey()) {
+                triggerKeyRequiredModal('Fix Grammar & Polishing');
+                return;
+              }
+              handleFixGrammar();
+            }}
+            disabled={isAiProcessing}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-800/90 hover:bg-neutral-700 text-neutral-200 border border-white/10 hover:border-cyan-500/30 transition-all disabled:opacity-40 font-medium"
           >
             <FontAwesomeIcon icon={faWandMagicSparkles} className="text-cyan-400 text-xs" />
@@ -526,8 +556,14 @@ export const TranscriptionWorkspace: React.FC = () => {
 
           {/* Smart Summarize */}
           <button
-            onClick={handleSummarize}
-            disabled={!rawTranscript.trim() || isAiProcessing}
+            onClick={() => {
+              if (!hasAnyApiKey()) {
+                triggerKeyRequiredModal('AI Summary & Action Items');
+                return;
+              }
+              handleSummarize();
+            }}
+            disabled={isAiProcessing}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-800/90 hover:bg-neutral-700 text-neutral-200 border border-white/10 hover:border-emerald-500/30 transition-all disabled:opacity-40 font-medium"
           >
             <FontAwesomeIcon icon={faListCheck} className="text-emerald-400 text-xs" />
@@ -549,8 +585,14 @@ export const TranscriptionWorkspace: React.FC = () => {
               ))}
             </select>
             <button
-              onClick={handleTranslate}
-              disabled={!rawTranscript.trim() || isAiProcessing}
+              onClick={() => {
+                if (!hasAnyApiKey()) {
+                  triggerKeyRequiredModal('Multilingual Translation');
+                  return;
+                }
+                handleTranslate();
+              }}
+              disabled={isAiProcessing}
               className="px-2 py-0.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold disabled:opacity-40 ml-1 transition-all"
             >
               Translate

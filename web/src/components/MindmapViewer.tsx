@@ -22,12 +22,18 @@ export const MindmapViewer: React.FC = () => {
     setMindmapCode,
     isAiProcessing,
     setIsAiProcessing,
+    hasAnyApiKey,
+    triggerKeyRequiredModal,
   } = useVoiceStore();
 
   const [copied, setCopied] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const handleGenerateMindmap = async () => {
+    if (!hasAnyApiKey()) {
+      triggerKeyRequiredModal('Concept Mindmap Generator');
+      return;
+    }
     if (!rawTranscript.trim()) return;
     setIsAiProcessing(true, 'Generating Visual Mindmap...');
     try {
