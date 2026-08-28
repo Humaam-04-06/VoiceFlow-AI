@@ -4,6 +4,8 @@ export type STTEngine = 'web-speech' | 'groq-whisper' | 'openai-whisper';
 
 export type TTSEngine = 'kokoro' | 'edge-neural' | 'browser' | 'openai';
 
+export type AudioSourceType = 'microphone' | 'tab-audio';
+
 export type AIProvider = 
   | 'free-local'
   | 'gemini'
@@ -31,9 +33,25 @@ export interface TranscriptSegment {
   text: string;
   startTime: number;
   endTime: number;
-  speaker?: string;
+  speaker?: 'speaker-1' | 'speaker-2' | string;
   confidence?: number;
   isAiEdited?: boolean;
+}
+
+export interface ToneSentimentStats {
+  confidence: number; // 0-100%
+  energy: number; // 0-100%
+  executivePresence: number; // 0-100%
+  primaryMood: string;
+  coachingTip: string;
+}
+
+export interface VoiceMacroCard {
+  id: string;
+  type: 'task' | 'idea' | 'urgent';
+  text: string;
+  isCompleted: boolean;
+  timestamp: number;
 }
 
 export interface SessionHistoryItem {
@@ -47,9 +65,11 @@ export interface SessionHistoryItem {
   summary?: string;
   actionItems?: string[];
   mindmapMermaid?: string;
+  macroCards?: VoiceMacroCard[];
   language: string;
   tags: string[];
   isPinned?: boolean;
+  hasAudioBlob?: boolean;
 }
 
 export interface SpeechStats {

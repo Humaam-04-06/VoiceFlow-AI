@@ -5,6 +5,9 @@ import { useVoiceStore } from '@/store/useVoiceStore';
 import { dispatchAITask } from '@/lib/ai/aiDispatcher';
 import { speakText, stopSpeech } from '@/lib/audio/ttsEngine';
 import { MindmapViewer } from './MindmapViewer';
+import { AudioPlaybackPlayer } from './AudioPlaybackPlayer';
+import { ToneSentimentRadar } from './ToneSentimentRadar';
+import { VoiceMacroActionBoard } from './VoiceMacroActionBoard';
 import { SUPPORTED_LANGUAGES } from '@/lib/constants/languages';
 import confetti from 'canvas-confetti';
 import { jsPDF } from 'jspdf';
@@ -18,7 +21,6 @@ import {
   faShareNodes,
   faVolumeHigh,
   faVolumeXmark,
-  faRotate,
   faBookmark,
   faFilePdf,
   faFileCode,
@@ -29,7 +31,11 @@ import {
   faBriefcase,
   faGraduationCap,
   faNewspaper,
-  faArrowsRotate
+  faArrowsRotate,
+  faUsers,
+  faFire,
+  faUserTie,
+  faUser
 } from '@fortawesome/free-solid-svg-icons';
 import { RepurposeFormat } from '@/types';
 
@@ -37,6 +43,7 @@ export const TranscriptionWorkspace: React.FC = () => {
   const {
     rawTranscript,
     liveInterimText,
+    segments,
     polishedTranscript,
     summary,
     actionItems,
@@ -51,6 +58,9 @@ export const TranscriptionWorkspace: React.FC = () => {
     selectedLanguage,
     isAiProcessing,
     aiStatusMessage,
+    isMultiSpeakerMode,
+    speaker1Name,
+    speaker2Name,
     setRawTranscript,
     setPolishedTranscript,
     setSummary,
@@ -59,6 +69,8 @@ export const TranscriptionWorkspace: React.FC = () => {
     setMindmapCode,
     setRepurposedContent,
     setActiveWorkspaceTab,
+    setIsMultiSpeakerMode,
+    setSpeakerNames,
     setIsAiProcessing,
     saveCurrentSessionToHistory,
   } = useVoiceStore();
@@ -81,9 +93,7 @@ export const TranscriptionWorkspace: React.FC = () => {
         origin: { y: 0.8 },
         colors: ['#8B5CF6', '#06B6D4', '#10B981']
       });
-    } catch {
-      // Confetti fallback
-    }
+    } catch {}
 
     setTimeout(() => setCopied(false), 2000);
   };
@@ -209,7 +219,7 @@ export const TranscriptionWorkspace: React.FC = () => {
   const handleExportPDF = (text: string) => {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('Voice-To-Text AI Transcript', 14, 20);
+    doc.text('VoiceFlow AI Transcript', 14, 20);
     doc.setFontSize(10);
     doc.setTextColor(100);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
@@ -277,46 +287,82 @@ export const TranscriptionWorkspace: React.FC = () => {
         </div>
       )}
 
+      {/* Real Recorded Voice Replay Bar */}
+      <AudioPlaybackPlayer />
+
       {/* Workspace Navigation Tabs & Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10 mt-1">
         {/* Tabs */}
-        <div className="flex items-center gap-1 bg-neutral-950/60 p-1 rounded-2xl border border-white/10">
+        <div className="flex flex-wrap items-center gap-1 bg-neutral-950/60 p-1 rounded-2xl border border-white/10">
           <button
             onClick={() => setActiveWorkspaceTab('transcript')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'transcript'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <FontAwesomeIcon icon={faFileLines} className="text-violet-400 text-xs" />
-            Raw Transcript
+            Transcript
+          </button>
+          <button
+            onClick={() => setActiveWorkspaceTab('dialogue')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              activeWorkspaceTab === 'dialogue'
+                ? 'bg-neutral-800 text-white shadow-sm'
+                : 'text-neutral-400 hover:text-neutral-200'
+            }`}
+          >
+            <FontAwesomeIcon icon={faUsers} className="text-cyan-400 text-xs" />
+            Speakers Dialogue
+          </button>
+          <button
+            onClick={() => setActiveWorkspaceTab('actions')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              activeWorkspaceTab === 'actions'
+                ? 'bg-neutral-800 text-white shadow-sm'
+                : 'text-neutral-400 hover:text-neutral-200'
+            }`}
+          >
+            <FontAwesomeIcon icon={faListCheck} className="text-emerald-400 text-xs" />
+            Action Board
+          </button>
+          <button
+            onClick={() => setActiveWorkspaceTab('tone')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              activeWorkspaceTab === 'tone'
+                ? 'bg-neutral-800 text-white shadow-sm'
+                : 'text-neutral-400 hover:text-neutral-200'
+            }`}
+          >
+            <FontAwesomeIcon icon={faFire} className="text-rose-400 text-xs" />
+            Tone Radar
           </button>
           <button
             onClick={() => setActiveWorkspaceTab('polished')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'polished'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <FontAwesomeIcon icon={faWandMagicSparkles} className="text-cyan-400 text-xs" />
-            Polished / Translated
+            Polished
           </button>
           <button
             onClick={() => setActiveWorkspaceTab('summary')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'summary'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <FontAwesomeIcon icon={faListCheck} className="text-emerald-400 text-xs" />
-            Summary & Tasks
+            Summary
           </button>
           <button
             onClick={() => setActiveWorkspaceTab('mindmap')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'mindmap'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
@@ -327,14 +373,14 @@ export const TranscriptionWorkspace: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveWorkspaceTab('repurpose')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'repurpose'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <FontAwesomeIcon icon={faShareNodes} className="text-amber-400 text-xs" />
-            Repurpose Studio
+            Repurpose
           </button>
         </div>
 
@@ -467,6 +513,70 @@ export const TranscriptionWorkspace: React.FC = () => {
       <div className="mt-4 min-h-[300px] flex flex-col">
         {activeWorkspaceTab === 'mindmap' ? (
           <MindmapViewer />
+        ) : activeWorkspaceTab === 'actions' ? (
+          <VoiceMacroActionBoard />
+        ) : activeWorkspaceTab === 'tone' ? (
+          <ToneSentimentRadar />
+        ) : activeWorkspaceTab === 'dialogue' ? (
+          <div className="flex flex-col gap-4 animate-fade-in">
+            {/* Speaker Name Customizers */}
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-neutral-950/60 border border-white/10 text-xs">
+              <div className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faUsers} className="text-cyan-400 text-xs" />
+                <span className="font-bold text-white">Multi-Speaker Diarization</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  value={speaker1Name}
+                  onChange={(e) => setSpeakerNames({ speaker1: e.target.value })}
+                  placeholder="Speaker 1 Name"
+                  className="bg-neutral-900 border border-violet-500/40 rounded-xl px-3 py-1 text-xs text-violet-300 outline-none w-36 font-semibold"
+                />
+                <input
+                  type="text"
+                  value={speaker2Name}
+                  onChange={(e) => setSpeakerNames({ speaker2: e.target.value })}
+                  placeholder="Speaker 2 Name"
+                  className="bg-neutral-900 border border-cyan-500/40 rounded-xl px-3 py-1 text-xs text-cyan-300 outline-none w-36 font-semibold"
+                />
+              </div>
+            </div>
+
+            {/* Dialogue Bubble Feed */}
+            <div className="space-y-3 p-4 rounded-2xl bg-neutral-950/80 border border-white/10 min-h-[240px] max-h-[400px] overflow-y-auto">
+              {segments.length > 0 ? (
+                segments.map((seg, idx) => {
+                  const isSpeaker1 = seg.speaker === 'speaker-1' || idx % 2 === 0;
+                  return (
+                    <div
+                      key={seg.id || idx}
+                      className={`flex flex-col gap-1 p-3.5 rounded-2xl border transition-all ${
+                        isSpeaker1
+                          ? 'bg-violet-950/20 border-violet-500/30 text-violet-100 mr-8'
+                          : 'bg-cyan-950/20 border-cyan-500/30 text-cyan-100 ml-8'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-[11px] font-bold">
+                        <span className={`flex items-center gap-1.5 ${isSpeaker1 ? 'text-violet-300' : 'text-cyan-300'}`}>
+                          <FontAwesomeIcon icon={isSpeaker1 ? faUserTie : faUser} className="text-xs" />
+                          {isSpeaker1 ? speaker1Name : speaker2Name}
+                        </span>
+                        <span className="text-[10px] font-mono text-neutral-400">
+                          {new Date(seg.startTime || Date.now()).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="text-xs leading-relaxed text-neutral-200 mt-1">{seg.text}</p>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-xs text-neutral-500 text-center py-12 italic">
+                  Start speaking to see dialogue bubbles organized by speaker...
+                </p>
+              )}
+            </div>
+          </div>
         ) : activeWorkspaceTab === 'repurpose' ? (
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2">

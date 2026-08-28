@@ -23,7 +23,8 @@ import {
   faCirclePause,
   faCircleExclamation,
   faWandMagicSparkles,
-  faXmark
+  faXmark,
+  faClosedCaptioning
 } from '@fortawesome/free-solid-svg-icons';
 
 export const HeroRecordingZone: React.FC = () => {
@@ -156,6 +157,14 @@ export const HeroRecordingZone: React.FC = () => {
 
         {/* Quick Modal Triggers */}
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setModalOpen('theater', true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-violet-600/20 hover:bg-violet-600/40 border border-violet-500/30 text-violet-300 hover:text-white transition-all shadow-sm"
+            title="Open Dual-Language Live Theater Subtitles"
+          >
+            <FontAwesomeIcon icon={faClosedCaptioning} className="text-violet-400 text-xs" />
+            Live Subtitles
+          </button>
           <button
             onClick={() => setModalOpen('upload', true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 text-neutral-300 hover:text-white transition-all shadow-sm"

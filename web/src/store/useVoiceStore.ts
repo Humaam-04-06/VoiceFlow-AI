@@ -4,11 +4,14 @@ import {
   RecordingState, 
   STTEngine, 
   TTSEngine, 
+  AudioSourceType,
   AIProvider, 
   APIKeysConfig, 
   TranscriptSegment, 
   SessionHistoryItem, 
   SpeechStats,
+  ToneSentimentStats,
+  VoiceMacroCard,
   RepurposeFormat 
 } from '@/types';
 
@@ -27,6 +30,13 @@ interface VoiceStoreState {
   audioUrl: string | null;
   volumeLevel: number; // 0 to 100
   isSpeakingDetected: boolean;
+  audioSourceType: AudioSourceType;
+
+  // Real Voice Audio Playback State
+  isAudioPlaying: boolean;
+  audioPlaybackRate: number;
+  audioCurrentTime: number;
+  audioDuration: number;
 
   // Transcript & Content State
   liveInterimText: string;
@@ -39,7 +49,18 @@ interface VoiceStoreState {
   targetTranslationLanguage: string;
   mindmapCode: string;
   repurposedContent: { format: RepurposeFormat; content: string } | null;
-  activeWorkspaceTab: 'transcript' | 'polished' | 'summary' | 'mindmap' | 'repurpose';
+  activeWorkspaceTab: 'transcript' | 'dialogue' | 'polished' | 'summary' | 'mindmap' | 'repurpose' | 'actions' | 'tone';
+
+  // Multi-Speaker Diarization State
+  isMultiSpeakerMode: boolean;
+  speaker1Name: string;
+  speaker2Name: string;
+
+  // Tone & Sentiment Analysis State
+  toneStats: ToneSentimentStats;
+
+  // Smart Voice Macro Cards (Auto-Kanban)
+  macroCards: VoiceMacroCard[];
 
   // Stats & Speech Coach
   stats: SpeechStats;
@@ -64,6 +85,7 @@ interface VoiceStoreState {
   isHistoryOpen: boolean;
   isUploadModalOpen: boolean;
   isChatDrawerOpen: boolean;
+  isTheaterSubtitleOpen: boolean;
 
   // History & Chat
   history: SessionHistoryItem[];
@@ -75,6 +97,9 @@ interface VoiceStoreState {
   setAudioBlob: (blob: Blob | null, url: string | null) => void;
   setVolumeLevel: (vol: number) => void;
   setIsSpeakingDetected: (detected: boolean) => void;
+  setAudioSourceType: (type: AudioSourceType) => void;
+
+  setAudioPlaybackState: (state: { isPlaying?: boolean; rate?: number; currentTime?: number; duration?: number }) => void;
   
   setLiveInterimText: (text: string) => void;
   addTranscriptSegment: (segment: TranscriptSegment) => void;
@@ -85,7 +110,15 @@ interface VoiceStoreState {
   setTranslatedText: (text: string, lang: string) => void;
   setMindmapCode: (code: string) => void;
   setRepurposedContent: (repurpose: { format: RepurposeFormat; content: string } | null) => void;
-  setActiveWorkspaceTab: (tab: 'transcript' | 'polished' | 'summary' | 'mindmap' | 'repurpose') => void;
+  setActiveWorkspaceTab: (tab: 'transcript' | 'dialogue' | 'polished' | 'summary' | 'mindmap' | 'repurpose' | 'actions' | 'tone') => void;
+  
+  setIsMultiSpeakerMode: (enabled: boolean) => void;
+  setSpeakerNames: (names: { speaker1?: string; speaker2?: string }) => void;
+
+  // Macro Card Actions
+  toggleMacroCard: (id: string) => void;
+  deleteMacroCard: (id: string) => void;
+  addMacroCard: (card: Omit<VoiceMacroCard, 'id' | 'timestamp'>) => void;
   
   updateStats: () => void;
   setSelectedLanguage: (lang: string) => void;
@@ -98,7 +131,7 @@ interface VoiceStoreState {
   setIsAiProcessing: (processing: boolean, msg?: string) => void;
   setErrorMessage: (err: string | null) => void;
 
-  setModalOpen: (modal: 'settings' | 'history' | 'upload' | 'chat', isOpen: boolean) => void;
+  setModalOpen: (modal: 'settings' | 'history' | 'upload' | 'chat' | 'theater', isOpen: boolean) => void;
   
   saveCurrentSessionToHistory: (title?: string) => void;
   loadSessionFromHistory: (session: SessionHistoryItem) => void;
@@ -122,6 +155,13 @@ export const useVoiceStore = create<VoiceStoreState>()(
       audioUrl: null,
       volumeLevel: 0,
       isSpeakingDetected: false,
+      audioSourceType: 'microphone',
+
+      // Real Voice Audio Playback Initial
+      isAudioPlaying: false,
+      audioPlaybackRate: 1.0,
+      audioCurrentTime: 0,
+      audioDuration: 0,
 
       // Transcript Initial
       liveInterimText: '',
@@ -135,6 +175,23 @@ export const useVoiceStore = create<VoiceStoreState>()(
       mindmapCode: '',
       repurposedContent: null,
       activeWorkspaceTab: 'transcript',
+
+      // Multi-Speaker Initial
+      isMultiSpeakerMode: false,
+      speaker1Name: 'Speaker 1 (Host)',
+      speaker2Name: 'Speaker 2 (Guest)',
+
+      // Tone Sentiment Initial
+      toneStats: {
+        confidence: 90,
+        energy: 85,
+        executivePresence: 88,
+        primaryMood: 'Confident & Persuasive',
+        coachingTip: 'Steady pace with clear enunciation and confident pitch.',
+      },
+
+      // Macro Cards Initial
+      macroCards: [],
 
       // Stats Initial
       stats: {
@@ -167,6 +224,7 @@ export const useVoiceStore = create<VoiceStoreState>()(
       isHistoryOpen: false,
       isUploadModalOpen: false,
       isChatDrawerOpen: false,
+      isTheaterSubtitleOpen: false,
 
       // History & Chat
       history: [],
@@ -181,14 +239,72 @@ export const useVoiceStore = create<VoiceStoreState>()(
       setAudioBlob: (audioBlob, audioUrl) => set({ audioBlob, audioUrl }),
       setVolumeLevel: (volumeLevel) => set({ volumeLevel }),
       setIsSpeakingDetected: (isSpeakingDetected) => set({ isSpeakingDetected }),
+      setAudioSourceType: (audioSourceType) => set({ audioSourceType }),
+
+      setAudioPlaybackState: (playback) =>
+        set((state) => ({
+          isAudioPlaying: playback.isPlaying ?? state.isAudioPlaying,
+          audioPlaybackRate: playback.rate ?? state.audioPlaybackRate,
+          audioCurrentTime: playback.currentTime ?? state.audioCurrentTime,
+          audioDuration: playback.duration ?? state.audioDuration,
+        })),
 
       setLiveInterimText: (liveInterimText) => set({ liveInterimText }),
       addTranscriptSegment: (segment) => 
         set((state) => {
-          const newSegments = [...state.segments, segment];
+          // Assign alternating speakers in multi-speaker mode
+          const currentSpeaker = state.isMultiSpeakerMode
+            ? (state.segments.length % 2 === 0 ? 'speaker-1' : 'speaker-2')
+            : 'speaker-1';
+
+          const segmentWithSpeaker: TranscriptSegment = {
+            ...segment,
+            speaker: segment.speaker || currentSpeaker,
+          };
+
+          const newSegments = [...state.segments, segmentWithSpeaker];
           const newRaw = newSegments.map(s => s.text).join(' ');
-          return { segments: newSegments, rawTranscript: newRaw };
+
+          // Real-time Voice Macro Triggers detection (Task, Idea, Important)
+          const lowerSeg = segment.text.toLowerCase();
+          const newCards = [...state.macroCards];
+
+          if (lowerSeg.includes('task:') || lowerSeg.includes('todo:') || lowerSeg.includes('action:')) {
+            const taskText = segment.text.replace(/^(task|todo|action):\s*/i, '');
+            newCards.push({
+              id: `macro-${Date.now()}`,
+              type: 'task',
+              text: taskText || segment.text,
+              isCompleted: false,
+              timestamp: Date.now(),
+            });
+          } else if (lowerSeg.includes('idea:') || lowerSeg.includes('brainstorm:')) {
+            const ideaText = segment.text.replace(/^(idea|brainstorm):\s*/i, '');
+            newCards.push({
+              id: `macro-${Date.now()}`,
+              type: 'idea',
+              text: ideaText || segment.text,
+              isCompleted: false,
+              timestamp: Date.now(),
+            });
+          } else if (lowerSeg.includes('important:') || lowerSeg.includes('urgent:')) {
+            const alertText = segment.text.replace(/^(important|urgent):\s*/i, '');
+            newCards.push({
+              id: `macro-${Date.now()}`,
+              type: 'urgent',
+              text: alertText || segment.text,
+              isCompleted: false,
+              timestamp: Date.now(),
+            });
+          }
+
+          return { 
+            segments: newSegments, 
+            rawTranscript: newRaw,
+            macroCards: newCards 
+          };
         }),
+
       setRawTranscript: (rawTranscript) => set({ rawTranscript }),
       setPolishedTranscript: (polishedTranscript) => set({ polishedTranscript }),
       setSummary: (summary) => set({ summary }),
@@ -197,6 +313,27 @@ export const useVoiceStore = create<VoiceStoreState>()(
       setMindmapCode: (mindmapCode) => set({ mindmapCode }),
       setRepurposedContent: (repurposedContent) => set({ repurposedContent }),
       setActiveWorkspaceTab: (activeWorkspaceTab) => set({ activeWorkspaceTab }),
+
+      setIsMultiSpeakerMode: (isMultiSpeakerMode) => set({ isMultiSpeakerMode }),
+      setSpeakerNames: (names) => set((state) => ({
+        speaker1Name: names.speaker1 ?? state.speaker1Name,
+        speaker2Name: names.speaker2 ?? state.speaker2Name,
+      })),
+
+      toggleMacroCard: (id) =>
+        set((state) => ({
+          macroCards: state.macroCards.map(c => c.id === id ? { ...c, isCompleted: !c.isCompleted } : c)
+        })),
+
+      deleteMacroCard: (id) =>
+        set((state) => ({
+          macroCards: state.macroCards.filter(c => c.id !== id)
+        })),
+
+      addMacroCard: (card) =>
+        set((state) => ({
+          macroCards: [...state.macroCards, { id: `macro-${Date.now()}`, timestamp: Date.now(), ...card }]
+        })),
 
       updateStats: () => {
         const { rawTranscript, durationSeconds } = get();
@@ -211,6 +348,13 @@ export const useVoiceStore = create<VoiceStoreState>()(
               fillerWordsCount: 0,
               fillerWordsList: {},
               clarityScore: 100,
+            },
+            toneStats: {
+              confidence: 90,
+              energy: 85,
+              executivePresence: 88,
+              primaryMood: 'Ready to Listen',
+              coachingTip: 'Speak with your natural conversational tone.',
             }
           });
           return;
@@ -236,12 +380,37 @@ export const useVoiceStore = create<VoiceStoreState>()(
           }
         });
 
-        // Clarity score calculation (penalize excessive fillers and too fast/slow pace)
+        // Clarity score calculation
         let clarity = 100;
         const fillerRatio = wordCount > 0 ? (totalFillers / wordCount) * 100 : 0;
         clarity -= Math.min(fillerRatio * 5, 40);
         if (wpm < 80 || wpm > 200) {
           clarity -= 15;
+        }
+
+        // Tone & Sentiment Analysis calculation
+        let confidence = 85;
+        let energy = 80;
+        let executivePresence = 85;
+        let mood = 'Balanced & Clear';
+        let tip = 'Great delivery and balanced tone.';
+
+        if (wpm >= 130 && wpm <= 165 && totalFillers <= 2) {
+          confidence = 96;
+          energy = 92;
+          executivePresence = 94;
+          mood = 'Confident & Persuasive';
+          tip = 'Optimal speaking cadence with high executive presence.';
+        } else if (wpm > 175) {
+          energy = 95;
+          confidence = 78;
+          mood = 'High Energy / Rapid';
+          tip = 'Try slowing down slightly at sentence ends for maximum audience retention.';
+        } else if (wpm < 100 && wpm > 0) {
+          confidence = 82;
+          energy = 70;
+          mood = 'Deliberate & Thoughtful';
+          tip = 'Good clarity; consider slightly picking up tempo for dynamic engagement.';
         }
 
         set({
@@ -253,6 +422,13 @@ export const useVoiceStore = create<VoiceStoreState>()(
             fillerWordsCount: totalFillers,
             fillerWordsList: fillerList,
             clarityScore: Math.max(Math.round(clarity), 20),
+          },
+          toneStats: {
+            confidence,
+            energy,
+            executivePresence,
+            primaryMood: mood,
+            coachingTip: tip,
           }
         });
       },
@@ -284,10 +460,11 @@ export const useVoiceStore = create<VoiceStoreState>()(
         if (modal === 'history') set({ isHistoryOpen: isOpen });
         if (modal === 'upload') set({ isUploadModalOpen: isOpen });
         if (modal === 'chat') set({ isChatDrawerOpen: isOpen });
+        if (modal === 'theater') set({ isTheaterSubtitleOpen: isOpen });
       },
 
       saveCurrentSessionToHistory: (customTitle) => {
-        const { rawTranscript, polishedTranscript, summary, actionItems, mindmapCode, durationSeconds, stats, selectedLanguage } = get();
+        const { rawTranscript, polishedTranscript, summary, actionItems, mindmapCode, macroCards, durationSeconds, stats, selectedLanguage, audioBlob } = get();
         if (!rawTranscript.trim()) return;
 
         const defaultTitle = rawTranscript.slice(0, 40) + (rawTranscript.length > 40 ? '...' : '');
@@ -302,9 +479,11 @@ export const useVoiceStore = create<VoiceStoreState>()(
           summary: summary || undefined,
           actionItems: actionItems.length > 0 ? actionItems : undefined,
           mindmapMermaid: mindmapCode || undefined,
+          macroCards: macroCards.length > 0 ? macroCards : undefined,
           language: selectedLanguage,
           tags: ['voice-note'],
           isPinned: false,
+          hasAudioBlob: Boolean(audioBlob),
         };
 
         set((state) => ({
@@ -319,6 +498,7 @@ export const useVoiceStore = create<VoiceStoreState>()(
           summary: session.summary || '',
           actionItems: session.actionItems || [],
           mindmapCode: session.mindmapMermaid || '',
+          macroCards: session.macroCards || [],
           durationSeconds: session.durationSeconds,
           selectedLanguage: session.language,
           activeWorkspaceTab: 'transcript',
@@ -358,6 +538,7 @@ export const useVoiceStore = create<VoiceStoreState>()(
         actionItems: [],
         translatedText: '',
         mindmapCode: '',
+        macroCards: [],
         repurposedContent: null,
         activeWorkspaceTab: 'transcript',
         chatMessages: [],
@@ -370,6 +551,13 @@ export const useVoiceStore = create<VoiceStoreState>()(
           fillerWordsCount: 0,
           fillerWordsList: {},
           clarityScore: 100,
+        },
+        toneStats: {
+          confidence: 90,
+          energy: 85,
+          executivePresence: 88,
+          primaryMood: 'Ready to Listen',
+          coachingTip: 'Speak with your natural conversational tone.',
         }
       })
     }),
@@ -386,6 +574,8 @@ export const useVoiceStore = create<VoiceStoreState>()(
         noiseGateEnabled: state.noiseGateEnabled,
         highPassFilterEnabled: state.highPassFilterEnabled,
         autoPunctuation: state.autoPunctuation,
+        speaker1Name: state.speaker1Name,
+        speaker2Name: state.speaker2Name,
       }),
     }
   )
