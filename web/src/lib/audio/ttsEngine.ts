@@ -26,6 +26,8 @@ export async function speakText(
 
   stopSpeech();
 
+  const cleanText = text.replace(/\[Translated.*?\]:\s*/gi, '').trim();
+
   // 1. OpenAI TTS (if BYOK key provided)
   if (engine === 'openai' && openaiKey?.trim()) {
     try {
@@ -38,7 +40,7 @@ export async function speakText(
         },
         body: JSON.stringify({
           model: 'tts-1',
-          input: text.slice(0, 4000),
+          input: cleanText.slice(0, 4000),
           voice: 'alloy'
         })
       });
@@ -55,18 +57,17 @@ export async function speakText(
       return;
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      console.warn('OpenAI TTS failed, falling back to Neural Synthesis:', errorMsg);
+      console.warn('OpenAI TTS failed, falling back to Local Neural Stream:', errorMsg);
     }
   }
 
-  // 2. High-Fidelity Multilingual Neural TTS Engine (Supports Urdu, Hindi, Arabic, Spanish, French, etc.)
+  // 2. High-Fidelity Same-Origin Server TTS Route (/api/tts) — Supports Urdu, Hindi, Arabic, Spanish, etc.
   try {
     const langCode = language.split('-')[0].toLowerCase();
-    const cleanText = text.replace(/\[Translated.*?\]:\s*/gi, '').trim();
-    const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(cleanText.slice(0, 450))}`;
+    const serverTtsUrl = `/api/tts?lang=${encodeURIComponent(langCode)}&text=${encodeURIComponent(cleanText.slice(0, 450))}`;
 
     onStart?.();
-    const audio = new Audio(ttsUrl);
+    const audio = new Audio(serverTtsUrl);
     audio.playbackRate = Math.max(0.75, Math.min(rate, 1.5));
     activeAudioElement = audio;
 
@@ -95,8 +96,8 @@ export async function speakText(
     }
     return;
   } catch (err) {
-    console.warn('Neural TTS stream failed, using Web Speech API fallback:', err);
-    speakViaBrowserSynthesis(text, language, rate, pitch, onStart, onEnd, onError);
+    console.warn('Server TTS stream failed, using Web Speech API fallback:', err);
+    speakViaBrowserSynthesis(cleanText, language, rate, pitch, onStart, onEnd, onError);
   }
 }
 
@@ -120,7 +121,13 @@ function speakViaBrowserSynthesis(
       const voices = window.speechSynthesis.getVoices();
       const langPrefix = language.split('-')[0].toLowerCase();
       
-      const exactVoice = voices.find(v => v.lang.toLowerCase() === language.toLowerCase() || v.lang.toLowerCase().startsWith(langPrefix));
+      // Match exact language voice or regional variant (e.g. Urdu, Hindi, Arabic)
+      const exactVoice = voices.find(v => 
+        v.lang.toLowerCase() === language.toLowerCase() || 
+        v.lang.toLowerCase().startsWith(langPrefix) ||
+        (langPrefix === 'ur' && v.lang.toLowerCase().startsWith('hi')) // Hindi & Urdu phonetic fallback
+      );
+
       if (exactVoice) {
         utterance.voice = exactVoice;
       }
