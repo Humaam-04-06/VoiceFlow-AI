@@ -78,7 +78,7 @@ export const ApiKeyRequiredModal: React.FC<ApiKeyRequiredModalProps> = ({
             {/* 1. Google Gemini */}
             <div className="p-3 rounded-2xl bg-neutral-950/70 border border-white/5 flex items-center justify-between gap-3 hover:border-violet-500/30 transition-all">
               <div>
-                <span className="font-bold text-violet-300">1. Google Gemini (100% Free Tier)</span>
+                <span className="font-bold text-violet-300">1. Google Gemini 2.5 / 2.0 (100% Free)</span>
                 <p className="text-[11px] text-neutral-400">Fast, generous free daily limits & zero cost</p>
               </div>
               <a
@@ -95,8 +95,8 @@ export const ApiKeyRequiredModal: React.FC<ApiKeyRequiredModalProps> = ({
             {/* 2. OpenAI GPT */}
             <div className="p-3 rounded-2xl bg-neutral-950/70 border border-white/5 flex items-center justify-between gap-3 hover:border-emerald-500/30 transition-all">
               <div>
-                <span className="font-bold text-emerald-300">2. OpenAI GPT-4o / GPT-4o-mini</span>
-                <p className="text-[11px] text-neutral-400">Standard API for chat and translation</p>
+                <span className="font-bold text-emerald-300">2. OpenAI GPT-4o Flagship</span>
+                <p className="text-[11px] text-neutral-400">Omni multimodal model for chat and translation</p>
               </div>
               <a
                 href="https://platform.openai.com/api-keys"
@@ -112,8 +112,8 @@ export const ApiKeyRequiredModal: React.FC<ApiKeyRequiredModalProps> = ({
             {/* 3. Anthropic Claude */}
             <div className="p-3 rounded-2xl bg-neutral-950/70 border border-white/5 flex items-center justify-between gap-3 hover:border-amber-500/30 transition-all">
               <div>
-                <span className="font-bold text-amber-300">3. Anthropic Claude 3.5 Sonnet</span>
-                <p className="text-[11px] text-neutral-400">Superior prose formatting & deep summaries</p>
+                <span className="font-bold text-amber-300">3. Anthropic Claude 3.7 Sonnet</span>
+                <p className="text-[11px] text-neutral-400">Latest hybrid reasoning & flawless formatting</p>
               </div>
               <a
                 href="https://console.anthropic.com/settings/keys"

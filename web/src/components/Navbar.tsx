@@ -78,13 +78,13 @@ export const Navbar: React.FC = () => {
                 Free Local NLP (Offline)
               </option>
               <option value="gemini" className="bg-neutral-900 text-white">
-                Google Gemini (Free Tier)
+                Google Gemini 2.5 / 2.0 (Free)
               </option>
               <option value="openai" className="bg-neutral-900 text-white">
                 OpenAI GPT-4o (BYOK)
               </option>
               <option value="claude" className="bg-neutral-900 text-white">
-                Anthropic Claude 3.5 (BYOK)
+                Anthropic Claude 3.7 Sonnet (BYOK)
               </option>
             </select>
           </div>

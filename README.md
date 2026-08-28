@@ -1,6 +1,6 @@
 # 🎙️ VoiceFlow AI — Universal Voice Intelligence Studio (Web & Mobile)
 
-An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription Suite** built for cross-platform deployment across **Web** (Next.js 16 + React 19) and **Mobile** (React Native + whisper.cpp CoreML / NPU). Powered by **OpenAI Whisper**, **whisper.cpp** (C/C++ native engine), **Kokoro-82M Neural TTS**, and focused exclusively on the three premier foundation models: **Google Gemini**, **OpenAI GPT-4o**, and **Anthropic Claude 3.5**.
+An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription Suite** built for cross-platform deployment across **Web** (Next.js 16 + React 19) and **Mobile** (React Native + whisper.cpp CoreML / NPU). Powered by **OpenAI Whisper**, **whisper.cpp** (C/C++ native engine), **Kokoro-82M Neural TTS**, and focused exclusively on the latest frontier models: **Google Gemini 2.5 / 2.0 Flash**, **OpenAI GPT-4o Flagship**, and **Anthropic Claude 3.7 Sonnet (Hybrid Reasoning)**.
 
 ---
 
@@ -12,15 +12,15 @@ An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription
 
 ---
 
-## 🔑 Supported AI Models & Step-by-Step API Key Setup
+## 🔑 Latest AI Models & Step-by-Step API Key Setup
 
-VoiceFlow AI is laser-focused on the 3 industry-leading foundation models:
+VoiceFlow AI is equipped with the latest, highest-performing foundation models:
 
-| Provider | Supported Model | How to Get Your API Key |
+| Provider | Frontier Model | How to Get Your API Key |
 | :--- | :--- | :--- |
-| 🌟 **Google Gemini** | `gemini-2.0-flash` (100% Free Tier) | 1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)<br>2. Sign in with Google and click **Create API key**<br>3. Paste into VoiceFlow Settings. |
-| ⚡ **OpenAI** | `gpt-4o`, `gpt-4o-mini` | 1. Go to [OpenAI API Keys](https://platform.openai.com/api-keys)<br>2. Create a new Secret Key<br>3. Paste into VoiceFlow Settings. |
-| 🧠 **Anthropic Claude** | `claude-3-5-sonnet` | 1. Go to [Anthropic Console](https://console.anthropic.com/settings/keys)<br>2. Generate an API Key<br>3. Paste into VoiceFlow Settings. |
+| 🌟 **Google Gemini** | `gemini-2.5-flash` / `gemini-2.0-flash` (100% Free Tier) | 1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)<br>2. Sign in with Google and click **Create API key**<br>3. Paste into VoiceFlow Settings. |
+| ⚡ **OpenAI** | `gpt-4o` (Omni Flagship Multimodal) | 1. Go to [OpenAI API Keys](https://platform.openai.com/api-keys)<br>2. Create a new Secret Key<br>3. Paste into VoiceFlow Settings. |
+| 🧠 **Anthropic Claude** | `claude-3-7-sonnet-20250219` (Hybrid Reasoning) | 1. Go to [Anthropic Console](https://console.anthropic.com/settings/keys)<br>2. Generate an API Key<br>3. Paste into VoiceFlow Settings. |
 
 > [!IMPORTANT]
 > **Universal SweetAlert Key Guard Everywhere**:
@@ -115,7 +115,7 @@ Voice_To_Text_App/
 │   │   │   ├── HeroRecordingZone.tsx
 │   │   │   ├── HistoryDrawer.tsx          # Semantic Voice Vault search
 │   │   │   ├── MindmapViewer.tsx          # Concept mindmap generator
-│   │   │   ├── Navbar.tsx                 # Gemini, GPT, Claude switcher
+│   │   │   ├── Navbar.tsx                 # Gemini 2.5/2.0, GPT-4o, Claude 3.7 switcher
 │   │   │   ├── SettingsModal.tsx          # Key settings with step-by-step guides
 │   │   │   ├── SpeechCoachWidget.tsx
 │   │   │   ├── TheaterSubtitleModal.tsx   # Floating dual subtitles
@@ -127,7 +127,7 @@ Voice_To_Text_App/
 │   │   │   ├── useAudioRecorder.ts        # Multi-stage DSP noise filter
 │   │   │   └── useSpeechRecognition.ts
 │   │   ├── lib/
-│   │   │   ├── ai/                        # Gemini, GPT, Claude dispatchers
+│   │   │   ├── ai/                        # Gemini 2.5, GPT-4o, Claude 3.7 dispatchers
 │   │   │   ├── audio/                     # TTS and audio filter engines
 │   │   │   └── constants/                 # Supported multilingual list
 │   │   ├── store/                         # Zustand Global Voice Store

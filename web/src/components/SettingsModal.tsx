@@ -13,9 +13,9 @@ import {
   faVolumeHigh,
   faShieldHalved,
   faArrowUpRightFromSquare,
-  faCircleCheck,
   faWandMagicSparkles,
-  faRobot
+  faRobot,
+  faBolt
 } from '@fortawesome/free-solid-svg-icons';
 
 export const SettingsModal: React.FC = () => {
@@ -51,7 +51,7 @@ export const SettingsModal: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-bold text-white">Application Settings</h2>
-              <p className="text-[10px] text-neutral-400">Configure Gemini, GPT, Claude API keys & Audio DSP</p>
+              <p className="text-[10px] text-neutral-400">Configure Latest Gemini 2.5 / 2.0, GPT-4o, Claude 3.7 & Audio DSP</p>
             </div>
           </div>
           <button
@@ -73,7 +73,7 @@ export const SettingsModal: React.FC = () => {
             }`}
           >
             <FontAwesomeIcon icon={faKey} className="text-xs" />
-            AI Model Keys (Gemini, GPT, Claude)
+            AI Model Keys (Gemini 2.5/2.0, GPT-4o, Claude 3.7)
           </button>
           <button
             onClick={() => setActiveTab('audio')}
@@ -93,9 +93,9 @@ export const SettingsModal: React.FC = () => {
           {activeTab === 'ai' ? (
             <div className="space-y-4">
               <div className="p-3 rounded-2xl bg-neutral-950/60 border border-white/5 text-xs text-neutral-300 flex items-start gap-2.5">
-                <FontAwesomeIcon icon={faWandMagicSparkles} className="text-cyan-400 text-xs mt-0.5" />
+                <FontAwesomeIcon icon={faBolt} className="text-cyan-400 text-xs mt-0.5" />
                 <p>
-                  Bring Your Own Key (BYOK) for <strong>Gemini</strong>, <strong>OpenAI GPT</strong>, or <strong>Claude</strong>. Keys are stored locally on your device.
+                  Equipped with the latest frontier models: <strong>Google Gemini 2.5 / 2.0 Flash</strong>, <strong>OpenAI GPT-4o</strong>, and <strong>Claude 3.7 Sonnet</strong>. Keys are stored locally on your device.
                 </p>
               </div>
 
@@ -104,7 +104,7 @@ export const SettingsModal: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-violet-300 flex items-center gap-1.5">
                     <FontAwesomeIcon icon={faRobot} className="text-violet-400" />
-                    Google Gemini API Key (100% Free Tier)
+                    Google Gemini 2.5 / 2.0 Flash (Free Tier)
                   </label>
                   <a
                     href="https://aistudio.google.com/app/apikey"
@@ -112,7 +112,7 @@ export const SettingsModal: React.FC = () => {
                     rel="noopener noreferrer"
                     className="text-[11px] text-violet-400 hover:underline flex items-center gap-1"
                   >
-                    Get Key
+                    Get Free Key
                     <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-[9px]" />
                   </a>
                 </div>
@@ -130,7 +130,7 @@ export const SettingsModal: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
                     <FontAwesomeIcon icon={faRobot} className="text-emerald-400" />
-                    OpenAI GPT-4o / GPT-4o-mini API Key
+                    OpenAI GPT-4o Flagship API Key
                   </label>
                   <a
                     href="https://platform.openai.com/api-keys"
@@ -156,7 +156,7 @@ export const SettingsModal: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                     <FontAwesomeIcon icon={faRobot} className="text-amber-400" />
-                    Anthropic Claude 3.5 Sonnet API Key
+                    Anthropic Claude 3.7 Sonnet (Hybrid Reasoning) Key
                   </label>
                   <a
                     href="https://console.anthropic.com/settings/keys"

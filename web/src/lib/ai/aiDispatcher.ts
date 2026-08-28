@@ -33,7 +33,7 @@ export async function dispatchAITask(options: AIRequestOptions): Promise<AIRespo
     return executeLocalAction(action, text, targetLanguage, repurposeFormat, userPrompt);
   }
 
-  // 2. Call Cloud AI API (Gemini, OpenAI GPT, Anthropic Claude)
+  // 2. Call Cloud AI API (Gemini 2.5 / 2.0 Flash, OpenAI GPT-4o, Anthropic Claude 3.7 Sonnet)
   try {
     const prompt = buildSystemPrompt(action, targetLanguage, repurposeFormat, userPrompt);
     const userMessage = action === 'chat' 
@@ -160,86 +160,123 @@ function buildSystemPrompt(
   }
 }
 
-// Provider API Implementations
+// Latest Flagship Model Implementations with Graceful Fallbacks
 
 async function callGeminiAPI(apiKey: string, systemPrompt: string, userMessage: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: `${systemPrompt}\n\n${userMessage}` }],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 2048,
-      },
-    }),
-  });
+  const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  let lastError = '';
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `Gemini API error: ${response.status}`);
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `${systemPrompt}\n\n${userMessage}` }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 2048,
+          },
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
+      } else {
+        const err = await response.json().catch(() => ({}));
+        lastError = err?.error?.message || `Gemini API status ${response.status}`;
+      }
+    } catch (e: any) {
+      lastError = e?.message || 'Network error';
+    }
   }
 
-  const data = await response.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  throw new Error(lastError || 'Gemini API failed');
 }
 
 async function callOpenAIAPI(apiKey: string, systemPrompt: string, userMessage: string): Promise<string> {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage },
-      ],
-      temperature: 0.3,
-    }),
-  });
+  const models = ['gpt-4o', 'gpt-4o-mini'];
+  let lastError = '';
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `OpenAI API error: ${response.status}`);
+  for (const model of models) {
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+          temperature: 0.3,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const text = data.choices?.[0]?.message?.content;
+        if (text) return text;
+      } else {
+        const err = await response.json().catch(() => ({}));
+        lastError = err?.error?.message || `OpenAI API status ${response.status}`;
+      }
+    } catch (e: any) {
+      lastError = e?.message || 'Network error';
+    }
   }
 
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || '';
+  throw new Error(lastError || 'OpenAI API failed');
 }
 
 async function callClaudeAPI(apiKey: string, systemPrompt: string, userMessage: string): Promise<string> {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'dangerously-allow-browser': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 2048,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }],
-    }),
-  });
+  // Try Claude 3.7 Sonnet (latest hybrid reasoning), fallback to Claude 3.5 Sonnet
+  const models = ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022'];
+  let lastError = '';
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `Claude API error: ${response.status}`);
+  for (const model of models) {
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'dangerously-allow-browser': 'true',
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 2048,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userMessage }],
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const text = data.content?.[0]?.text;
+        if (text) return text;
+      } else {
+        const err = await response.json().catch(() => ({}));
+        lastError = err?.error?.message || `Claude API status ${response.status}`;
+      }
+    } catch (e: any) {
+      lastError = e?.message || 'Network error';
+    }
   }
 
-  const data = await response.json();
-  return data.content?.[0]?.text || '';
+  throw new Error(lastError || 'Claude API failed');
 }
 
 function parseSummaryAndActionItems(text: string): { summary: string; actionItems: string[] } {
