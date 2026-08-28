@@ -24,16 +24,6 @@ Real-Time Dictation • 48kHz DSP Noise Cancellation • 2-Way Babel Live Duplex
 
 ---
 
-## 📌 Viral GitHub Repository Description
-
-> 💡 **Copy & Paste this into your GitHub Repository "About" section:**
-> 
-> ```
-> 🎙️ The open-source AI Voice-to-Text & Universal Speech Studio. Real-time dictation, 48kHz Web Audio DSP noise cancellation, 2-Way Babel Live Translator with authentic Urdu/multilingual Neural TTS, Executive MoM PDF generator, Studio EQ mastering, and 100% offline whisper.cpp CoreML/NPU mobile app. Powered by Gemini 2.0, GPT-4o & Claude 3.7.
-> ```
-
----
-
 ## 📑 Table of Contents
 
 - [🌟 Key Highlights & Architecture](#-key-highlights)
