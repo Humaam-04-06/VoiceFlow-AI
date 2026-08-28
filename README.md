@@ -1,4 +1,4 @@
-# 🎙️ VoiceFlow AI — Universal Voice Intelligence Studio (Web & Mobile)
+# 🎙️ VoiceFlow AI — Universal Voice Intelligence Web Studio
 
 <div align="center">
 
@@ -8,17 +8,16 @@
 [![Whisper](https://img.shields.io/badge/OpenAI-Whisper-00A67E?style=for-the-badge&logo=openai)](https://openai.com/research/whisper)
 [![Gemini](https://img.shields.io/badge/Google-Gemini_2.0-8E75C2?style=for-the-badge&logo=google)](https://aistudio.google.com/)
 [![Claude](https://img.shields.io/badge/Anthropic-Claude_3.7-D97706?style=for-the-badge&logo=anthropic)](https://www.anthropic.com/)
-[![React Native](https://img.shields.io/badge/React_Native-Expo_52-000020?style=for-the-badge&logo=expo)](https://expo.dev/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 <br />
 
-**An ultra-fast, privacy-first Voice-to-Text & Multimodal Speech Intelligence Suite.**  
-Real-Time Dictation • 48kHz DSP Noise Cancellation • 2-Way Babel Live Duplex Translator • Meeting Minutes (MoM) PDF Generator • Native Urdu/Multilingual Neural TTS • Studio EQ Mastering • 100% Offline CoreML/NPU Mobile App.
+**An ultra-fast, privacy-first Voice-to-Text & Multimodal Speech Intelligence Web Application.**  
+Real-Time Dictation • 48kHz DSP Noise Cancellation • 2-Way Babel Live Duplex Translator • Corporate Meeting Minutes (MoM) PDF Generator • Native Urdu & Multilingual Neural TTS • Studio EQ Mastering.
 
 <br />
 
-[🌟 Star on GitHub](https://github.com/Humaam-04-06/Voice_To_Text_App) • [🚀 Live Web Studio](http://localhost:3000) • [📖 Documentation](#-complete-feature-guide--how-each-feature-works) • [📱 Mobile Setup](#-running-the-mobile-app-mobile)
+[🌟 Star on GitHub](https://github.com/Humaam-04-06/Voice_To_Text_App) • [🚀 Live Web Studio](http://localhost:3000) • [📖 Documentation](#-complete-feature-guide--how-each-feature-works) • [⚡ Quick Start](#-step-by-step-installation--running-guide)
 
 </div>
 
@@ -42,13 +41,10 @@ Real-Time Dictation • 48kHz DSP Noise Cancellation • 2-Way Babel Live Duplex
   - [12. "Ask AI" Contextual Transcript Chat](#12-ask-ai-contextual-transcript-chat)
   - [13. Concept Mindmap Visualizer (Mermaid.js)](#13-concept-mindmap-visualizer-mermaidjs)
   - [14. 1-Click Multi-Format Content Repurposer](#14-1-click-multi-format-content-repurposer)
-  - [15. 100% Offline Mobile App (`whisper.cpp` CoreML / NPU)](#15-100-offline-mobile-companion-app-mobile)
 - [🔑 Supported AI Models & Step-by-Step API Key Setup](#-supported-ai-models--step-by-step-api-key-setup)
 - [🇵🇰 Authentic Multilingual Voice Synthesis & TTS Architecture](#-authentic-multilingual-voice-synthesis--tts-architecture)
-- [💻 Multi-Platform Tech Stack](#-multi-platform-tech-stack)
+- [💻 Web Architecture & Tech Stack](#-web-architecture--tech-stack)
 - [🚀 Step-by-Step Installation & Running Guide](#-step-by-step-installation--running-guide)
-  - [Running the Web Studio (`/web`)](#running-the-web-studio-web)
-  - [Running the Mobile App (`/mobile`)](#running-the-mobile-app-mobile)
 - [📁 Project Directory Structure](#-project-directory-structure)
 - [📄 License & Attribution](#-license--attribution)
 
@@ -60,7 +56,7 @@ Real-Time Dictation • 48kHz DSP Noise Cancellation • 2-Way Babel Live Duplex
 - 🇵🇰 **Native Urdu & Multilingual Speech**: Speaks aloud in genuine, fluent Urdu (`اردو`), Hindi (`हिन्दी`), Arabic (`العربية`), Spanish (`Español`), French, and 20+ languages.
 - 🔇 **DSP Noise Annihilation**: Hardware high-pass, low-pass, 60Hz hum notch, and dynamics compression directly in the audio capture pipeline.
 - 🛡️ **Guarded Intelligence**: Never gets stuck; alerts users if an API key is needed with 10-second instant setup links.
-- 📱 **Mobile Native**: 100% offline, airplane-mode speech transcription powered by C/C++ `whisper.cpp` with Apple Neural Engine (CoreML) and Android NPU acceleration.
+- 🚀 **Modern Web Stack**: Built with Next.js 16 App Router, React 19, Tailwind CSS, and Web Audio API.
 
 ---
 
@@ -179,13 +175,6 @@ Real-Time Dictation • 48kHz DSP Noise Cancellation • 2-Way Babel Live Duplex
 
 ---
 
-### 15. 100% Offline Mobile Companion App (`/mobile`)
-- **What It Does**: A standalone iOS & Android app providing offline speech recognition on airplane mode.
-- **How It Works**: Uses `whisper.rn` binding to native C++ `whisper.cpp` running locally on **Apple CoreML Neural Engine (iOS)** and **Android NPU / Vulkan**.
-- **How to Use**: Navigate to `/mobile` and run `npx expo start`.
-
----
-
 ## 🔑 Supported AI Models & Step-by-Step API Key Setup
 
 VoiceFlow AI is equipped with the latest frontier models:
@@ -206,7 +195,7 @@ VoiceFlow AI is equipped with the latest frontier models:
 
 ---
 
-## 💻 Multi-Platform Tech Stack
+## 💻 Web Architecture & Tech Stack
 
 ```mermaid
 graph TD
@@ -221,17 +210,16 @@ graph TD
     ServerAPI --> Babel["2-Way Babel Translator (Urdu, etc.)"]
 ```
 
-| Layer | Web Application (`/web`) | Mobile Application (`/mobile`) |
-| :--- | :--- | :--- |
-| **Framework** | **Next.js 16 (App Router) + React 19** | **React Native (0.76) + Expo SDK 52** |
-| **Language** | **TypeScript 5 (Strict Mode)** | **TypeScript 5 (Strict Mode)** |
-| **Speech-to-Text** | **Web Speech API + Groq / OpenAI Whisper** | **`whisper.cpp` (C++) via `whisper.rn` (100% Offline)** |
-| **Hardware Accel** | **Web Audio API DSP Nodes** | **Apple CoreML Neural Engine & Android NPU** |
-| **Audio Processing** | **48kHz High-Pass, Low-Pass, 60Hz Notch & Dynamics Compressor** | **`expo-av` + Native Hardware Microphones** |
-| **TTS Engine** | **Next.js `/api/tts` Neural Stream + Kokoro-82M + Edge Neural** | **Native Platform Speech Synthesis / Kokoro** |
-| **Iconography** | **Font Awesome SVG Icons (`@fortawesome/react-fontawesome`)** | **Vector Icons** |
-| **State Store** | **Zustand 5 (IndexedDB / LocalStorage)** | **Zustand 5 (AsyncStorage)** |
-| **Document Export** | **jsPDF (MoM & Transcript) + Canvas-Confetti** | **Native Share Sheet & PDF Exporter** |
+| Layer | Web Application Technology |
+| :--- | :--- |
+| **Framework** | **Next.js 16 (App Router) + React 19** |
+| **Language** | **TypeScript 5 (Strict Mode)** |
+| **Speech-to-Text** | **Web Speech API + Groq / OpenAI Whisper** |
+| **Audio Processing** | **48kHz High-Pass, Low-Pass, 60Hz Notch & Dynamics Compressor** |
+| **TTS Engine** | **Next.js `/api/tts` Neural Stream + Kokoro-82M + Edge Neural** |
+| **Iconography** | **Font Awesome SVG Icons (`@fortawesome/react-fontawesome`)** |
+| **State Store** | **Zustand 5 (IndexedDB / LocalStorage)** |
+| **Document Export** | **jsPDF (MoM & Transcript) + Canvas-Confetti** |
 
 ---
 
@@ -244,13 +232,13 @@ graph TD
 
 ---
 
-### Running the Web Studio (`/web`)
+### Running the Web Studio
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Humaam-04-06/Voice_To_Text_App.git
 
-# 2. Navigate to the web folder
+# 2. Navigate to the web application folder
 cd Voice_To_Text_App/web
 
 # 3. Install dependencies
@@ -269,24 +257,6 @@ npm run build
 # 6. Run production server
 npm start
 ```
-
----
-
-### Running the Mobile App (`/mobile`)
-
-```bash
-# 1. Navigate to the mobile folder
-cd Voice_To_Text_App/mobile
-
-# 2. Install dependencies
-npm install
-
-# 3. Start the Expo development server
-npx expo start
-```
-
-- Press `a` for Android Emulator or `i` for iOS Simulator.
-- Or scan the QR code using the **Expo Go** app on your physical iPhone or Android device!
 
 ---
 
@@ -313,7 +283,7 @@ Voice_To_Text_App/
 │   │   │   ├── HeroRecordingZone.tsx      # Recording controls & waveform
 │   │   │   ├── HistoryDrawer.tsx          # Semantic Voice Vault search
 │   │   │   ├── MindmapViewer.tsx          # Concept mindmap generator
-│   │   │   ├── Navbar.tsx                 # Model switcher & top navigation
+│   │   │   ├── Navbar.tsx                 # Gemini 2.0, GPT-4o, Claude 3.7 switcher
 │   │   │   ├── SettingsModal.tsx          # Key settings with step-by-step guides
 │   │   │   ├── SpeechCoachWidget.tsx      # Clarity, WPM, and filler words
 │   │   │   ├── TheaterSubtitleModal.tsx   # Floating dual subtitles
@@ -332,13 +302,6 @@ Voice_To_Text_App/
 │   │   └── types/                         # TypeScript type definitions
 │   ├── package.json
 │   └── tsconfig.json
-├── mobile/                        # React Native / Expo Mobile App
-│   ├── src/
-│   │   └── services/
-│   │       └── whisperEngine.ts   # whisper.cpp CoreML / NPU offline engine
-│   ├── App.tsx                    # Mobile App entry point
-│   ├── app.json                   # Mobile configuration
-│   └── package.json
 └── README.md                      # Master Project Documentation
 ```
 
@@ -347,7 +310,6 @@ Voice_To_Text_App/
 ## 📄 License & Attribution
 
 - **Whisper**: OpenAI (MIT License)
-- **whisper.cpp**: Georgi Gerganov & GGML Community (MIT License)
 - **Application Code**: Licensed under the [MIT License](LICENSE).
 
 <div align="center">
