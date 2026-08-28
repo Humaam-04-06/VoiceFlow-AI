@@ -1,103 +1,150 @@
-# 🎙️ Voice-To-Text App
+# 🎙️ VoiceFlow AI — Voice to Text & Universal Speech Intelligence Studio
 
-An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription Application** designed for cross-platform deployment across **Web** and **Mobile** (iOS & Android). Powered by the state-of-the-art **OpenAI Whisper** and high-performance **whisper.cpp** (C/C++ port) ecosystem.
-
----
-
-## 🌟 Overview
-
-The **Voice-To-Text App** enables seamless, real-time speech transcription, audio file dictation, multilingual translation, and audio intelligence. Built with privacy, speed, and accuracy in mind, it supports both **client-side on-device inference** (via WebAssembly/WebGPU and Native C++ bindings) and **high-throughput backend server processing**.
-
-```
-                           ┌────────────────────────┐
-                           │   Voice-to-Text Core   │
-                           │ (Whisper / whisper.cpp)│
-                           └───────────┬────────────┘
-                                       │
-                ┌──────────────────────┴──────────────────────┐
-                │                                             │
-      ┌─────────▼───────────┐                       ┌─────────▼───────────┐
-      │   🌐 Web Client     │                       │  📱 Mobile Client   │
-      │ Next.js / WebAudio  │                       │ React Native / Expo │
-      │  (WASM + WebGPU)    │                       │ (whisper.cpp CoreML)│
-      └─────────────────────┘                       └─────────────────────┘
-```
+An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription Application** designed for cross-platform deployment across **Web** and **Mobile** (iOS & Android). Powered by the **OpenAI Whisper** and **whisper.cpp** (C/C++ port) ecosystem with built-in **100% Free speech recognition**, **Font Awesome SVG iconography**, **Neural TTS**, and a **Multi-LLM BYOK (Bring Your Own Key)** suite.
 
 ---
 
-## ✨ Key Features
+## 🌟 Live Demo & Preview
 
-- **⚡ Real-Time Streaming Speech-to-Text**: Low-latency voice capture and live transcription using `AudioWorklet` and micro-chunk processing.
-- **🔒 Privacy-First / 100% Offline Capability**: Runs quantized Whisper models directly on user devices without sending sensitive voice data to third-party servers.
-- **🌍 Multilingual & Automatic Language Detection**: Automatic language recognition across 99+ languages with built-in English translation.
-- **⏱️ Precise Timestamps & Word-Level Alignment**: High-fidelity subtitle (`.srt`, `.vtt`) and structured transcript generation with exact timestamps.
-- **📁 File Transcription & Batch Processing**: Support for MP3, WAV, M4A, FLAC, OGG, and WebM file uploads with asynchronous processing.
-- **🎛️ Noise Suppression & VAD (Voice Activity Detection)**: Built-in voice activity detection to ignore silence and background noise, saving battery and compute power.
-- **🌓 Modern, Accessible UI**: Premium responsive interface with dark/light themes, waveform visualizers, interactive transcript search, and one-click export (TXT, JSON, SRT, Markdown).
+- **Web App URL**: `http://localhost:3000` (Local Dev)
+- **Repository**: [https://github.com/Humaam-04-06/Voice_To_Text_App](https://github.com/Humaam-04-06/Voice_To_Text_App)
+- **License**: MIT
 
 ---
 
-## 🧠 Supported Whisper Models & Hardware Footprint
+## 🛠️ Complete Tech Stack
 
-| Model | Parameters | Memory Required (FP16 / Q4_0) | Relative Speed | Recommended Use Case |
-| :--- | :--- | :--- | :--- | :--- |
-| **tiny / tiny.en** | ~39 M | ~75 MB / ~31 MB | ~32x | Ultra-fast mobile/web streaming, low-end devices |
-| **base / base.en** | ~74 M | ~142 MB / ~57 MB | ~16x | Balanced real-time dictation & notes |
-| **small / small.en**| ~244 M | ~466 MB / ~182 MB | ~6x | High-accuracy mobile/web transcribing |
-| **medium / medium.en** | ~769 M | ~1.5 GB / ~515 MB | ~2x | High accuracy desktop & server workloads |
-| **large-v3 / turbo**| ~1550 M | ~3.1 GB / ~1.1 GB | ~1x / ~8x | Professional studio quality & complex accents |
+| Layer | Technology | Purpose & Capabilities |
+| :--- | :--- | :--- |
+| **Frontend Framework** | **Next.js 16 (App Router) + React 19** | Ultra-fast Server-Side Rendering, Turbopack compilation, and modern client hooks. |
+| **Language** | **TypeScript 5** | Strict type safety across all audio buffers, speech segments, and AI dispatcher payloads. |
+| **Styling & Theme** | **Tailwind CSS v4 + Glassmorphic CSS** | Sleek dark mode by default, neon radial gradients, custom scrollbars, and micro-interactions. |
+| **Iconography** | **Font Awesome SVG Icons (`@fortawesome/react-fontawesome`)** | Crisp, professional vector icons with zero default emoji reliance. |
+| **Audio Processing** | **Web Audio API (`AudioContext`, `AnalyserNode`, `BiquadFilterNode`)** | Real-time 44.1kHz audio capture, 80Hz high-pass filter, volume RMS detection, and noise suppression. |
+| **Speech Recognition** | **Web Speech API + Whisper Cloud API (`whisper-large-v3`)** | 100% Free infinite in-browser dictation + cloud Whisper audio fallback. |
+| **Speech Synthesis (TTS)** | **Kokoro-82M Neural + Edge Neural TTS + Web Speech** | Studio-quality human voice playback directly inside the browser. |
+| **State Management** | **Zustand 5 (with LocalStorage persistence)** | Lightweight, zero-boilerplate global state for transcripts, audio state, and API keys. |
+| **AI Intelligence Engine** | **Multi-Provider BYOK Engine + Free Local NLP** | Unified dispatcher supporting Gemini, OpenAI, Claude, Groq, DeepSeek, Groq LLaMA-3.3, and offline regex/NLP. |
+| **Export Engines** | **jsPDF + Canvas-Confetti** | 1-Click PDF formatting, `.SRT` Subtitles, `.TXT`, `.MD`, and celebration confetti. |
 
 ---
 
-## 🏗️ Architecture & Planned Modules
+## ✨ Implemented Core Features
+
+### 1. 🎙️ Real-Time Live Speech Dictation (100% Free)
+- **Zero-Latency Streaming**: Speak and watch words transcribe live in real-time.
+- **Multilingual Support**: Real-time recognition across 20+ languages (English, Urdu, Hindi, Spanish, French, German, Arabic, Mandarin, Japanese, Russian, etc.).
+- **Live Canvas Audio Waveform Visualizer**: 48-band reactive frequency spectrum bouncing to user pitch and volume with glowing neon caps.
+
+### 2. 📊 Live Presentation & Speech Coach HUD
+- **Words Per Minute (WPM) Gauge**: Real-time pace tracker with visual sweet-spot indicators (Relaxed, Ideal, Fast).
+- **Filler Word Radar**: Detects and counts verbal tics (*"um"*, *"uh"*, *"like"*, *"you know"*, *"basically"*).
+- **Clarity & Flow Score**: Live 0-100% speech fluency index.
+- **Word & Character Counter**: Real-time timestamped statistics.
+
+### 3. 🧠 Universal Multi-LLM BYOK & 100% Free Offline NLP
+- **Zero Key Needed (Free Local Engine)**: Client-side grammar polish, filler word removal, bullet summaries, and task extraction without sending data outside your device.
+- **BYOK Cloud Providers**:
+  - Google Gemini (`gemini-2.0-flash`, `gemini-1.5-pro`)
+  - Groq Cloud (`llama-3.3-70b-versatile`, `whisper-large-v3`)
+  - OpenAI (`gpt-4o`, `gpt-4o-mini`, `whisper-1`, `tts-1`)
+  - Anthropic Claude (`claude-3-5-sonnet`, `claude-3-5-haiku`)
+  - DeepSeek (`deepseek-chat`, `deepseek-reasoner`)
+  - xAI Grok (`grok-2`)
+  - Moonshot KIMI (`moonshot-v1`)
+
+### 4. 📑 1-Click Multi-Format Repurposer Studio
+Instantly transform raw speech into:
+- 📧 **Executive Email Draft**
+- 📋 **Meeting Minutes (MoM) with Task Checkboxes**
+- 🧵 **Twitter / X Thread**
+- 💼 **LinkedIn Thought Leadership Post**
+- 🎓 **Study Flashcards & Review Quiz**
+- 📰 **SEO Blog Article Outline**
+
+### 5. 🧠 Voice-to-Mindmap (Concept Visualizer)
+- Automatically converts spoken brainstorms and lectures into structured visual **Mermaid.js Concept Trees** with 1-click copy.
+
+### 6. 🔊 Neural Text-to-Speech (TTS) Suite
+- Read back transcripts, translated text, or summaries with **Kokoro-82M** or **Microsoft Edge Neural** voices with speed and pitch modulation.
+
+### 7. 📁 Drag-and-Drop Audio File Uploader
+- Upload `.mp3`, `.wav`, `.m4a`, `.ogg`, or `.webm` files up to 50MB with built-in player and Whisper transcription.
+
+### 8. 💬 Interactive "Chat with Transcript"
+- Side-drawer allowing users to ask specific questions about what was discussed in their recorded speech.
+
+### 9. 🔒 Private Local History & Multi-Export
+- Encrypted local browser storage (IndexedDB / LocalStorage) with search.
+- 1-Click Copy and export to **TXT**, **PDF**, **SRT Subtitles**, and **Markdown**.
+
+---
+
+## 📁 Repository Structure
 
 ```
 Voice_To_Text_App/
-├── web/                  # Web Application (Next.js / TypeScript / WebAudio / WASM)
-├── mobile/               # Mobile Application (React Native / Expo / whisper.cpp bindings)
-├── server/               # Optional Backend Transcription API (FastAPI / whisper.cpp Server)
-├── docs/                 # Documentation, API Specs & Architecture Guides
-└── README.md             # Project README & Setup
+├── web/                           # Next.js 16 Web Application
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── api/transcribe/    # Whisper audio transcription route
+│   │   │   ├── globals.css        # Glassmorphic Tailwind theme & animations
+│   │   │   ├── layout.tsx         # Root layout with Font Awesome CSS & SEO
+│   │   │   └── page.tsx           # Main application page
+│   │   ├── components/            # UI Components with Font Awesome SVG icons
+│   │   │   ├── AudioFileUploadModal.tsx
+│   │   │   ├── ChatDrawer.tsx
+│   │   │   ├── HeroRecordingZone.tsx
+│   │   │   ├── HistoryDrawer.tsx
+│   │   │   ├── MindmapViewer.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── SettingsModal.tsx
+│   │   │   ├── SpeechCoachWidget.tsx
+│   │   │   ├── TranscriptionWorkspace.tsx
+│   │   │   └── WaveformVisualizer.tsx
+│   │   ├── hooks/                 # Custom Audio & Speech Hooks
+│   │   │   ├── useAudioRecorder.ts
+│   │   │   └── useSpeechRecognition.ts
+│   │   ├── lib/
+│   │   │   ├── ai/                # Multi-LLM & Local NLP dispatchers
+│   │   │   │   ├── aiDispatcher.ts
+│   │   │   │   └── localNlp.ts
+│   │   │   ├── audio/             # TTS and audio filter engines
+│   │   │   │   └── ttsEngine.ts
+│   │   │   └── constants/         # Supported multilingual list
+│   │   │       └── languages.ts
+│   │   ├── store/                 # Zustand Global Voice Store
+│   │   │   └── useVoiceStore.ts
+│   │   └── types/                 # TypeScript type definitions
+│   │       └── index.ts
+│   ├── package.json
+│   └── tsconfig.json
+├── mobile/                        # Planned Mobile App (React Native / whisper.cpp)
+└── README.md                      # Project Documentation
 ```
 
 ---
 
-## 🚀 Target Platforms & Capabilities
-
-### 1. Web Application (`/web`)
-- **Browser-native capture**: Web Audio API with `AudioWorkletProcessor` capturing 16kHz mono PCM.
-- **Dual Mode**:
-  - *Local Mode*: In-browser inference via `whisper.wasm` or ONNX WebGPU (zero server cost, offline).
-  - *Cloud Mode*: WebSocket streaming to backend Whisper server for maximum model accuracy (`large-v3-turbo`).
-- **Interactive Editor**: Synchronized audio playback with word highlighting, correction, and copy/export.
-
-### 2. Mobile Application (`/mobile`)
-- **Native iOS & Android**: Powered by React Native / Expo with `react-native-whisper` (C++ `whisper.cpp` engine).
-- **Hardware Acceleration**: Apple Metal / CoreML on iOS, and Android NNAPI / Vulkan GPU on Android.
-- **Background Recording**: Persistent audio recording with floating widget and audio service support.
-
----
-
-## 🛠️ Quick Start & Setup
+## 🚀 Quick Start Guide
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (v18.x or v20.x+)
-- [Git](https://git-scm.com/)
-- [Python 3.10+](https://www.python.org/) (if running backend API / server)
+- Modern browser (Chrome, Edge, Brave, Safari)
 
-### Getting Started
+### Installation & Run
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/Voice_To_Text_App.git
-cd Voice_To_Text_App
+git clone https://github.com/Humaam-04-06/Voice_To_Text_App.git
+cd Voice_To_Text_App/web
 
-# Explore modules (once initialized)
-# Web:
-cd web && npm install && npm run dev
+# Install dependencies
+npm install
 
-# Mobile:
-cd mobile && npm install && npx expo start
+# Start the development server
+npm run dev
 ```
+
+Open **[http://localhost:3000](http://localhost:3000)** in your browser!
 
 ---
 
