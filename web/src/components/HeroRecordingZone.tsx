@@ -40,6 +40,8 @@ export const HeroRecordingZone: React.FC = () => {
     resetAll,
     setModalOpen,
     updateStats,
+    hasAnyApiKey,
+    triggerKeyRequiredModal,
   } = useVoiceStore();
 
   const {
@@ -180,7 +182,13 @@ export const HeroRecordingZone: React.FC = () => {
             Saved Notes
           </button>
           <button
-            onClick={() => setModalOpen('chat', true)}
+            onClick={() => {
+              if (!hasAnyApiKey()) {
+                triggerKeyRequiredModal('Ask AI (Transcript Chat)');
+              } else {
+                setModalOpen('chat', true);
+              }
+            }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 text-neutral-300 hover:text-white transition-all shadow-sm"
           >
             <FontAwesomeIcon icon={faComments} className="text-emerald-400 text-xs" />

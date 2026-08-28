@@ -22,8 +22,8 @@ VoiceFlow AI is laser-focused on the 3 industry-leading foundation models:
 | ⚡ **OpenAI** | `gpt-4o`, `gpt-4o-mini` | 1. Go to [OpenAI API Keys](https://platform.openai.com/api-keys)<br>2. Create a new Secret Key<br>3. Paste into VoiceFlow Settings. |
 | 🧠 **Anthropic Claude** | `claude-3-5-sonnet` | 1. Go to [Anthropic Console](https://console.anthropic.com/settings/keys)<br>2. Generate an API Key<br>3. Paste into VoiceFlow Settings. |
 
-> [!TIP]
-> **Built-in SweetAlert Key Guard**: If a user clicks any cloud AI feature (Fix Grammar, Summarize, Translate, Repurpose, or Babel Mode) without having added an API key, VoiceFlow automatically presents a guided SweetAlert modal with direct links and instructions on how to get their key in 10 seconds!
+> [!IMPORTANT]
+> **Universal SweetAlert Key Guard**: Whenever a user clicks **"Ask AI"**, **"Fix Grammar"**, **"Summarize"**, **"Translate"**, **"Repurpose"**, or **"Babel Mode"**, if no API key is detected, VoiceFlow immediately presents a guided SweetAlert modal with direct links and instructions on how to get their key in 10 seconds!
 
 ---
 
@@ -47,11 +47,11 @@ VoiceFlow AI is laser-focused on the 3 industry-leading foundation models:
 
 ### 1. 🎙️ Real-Time Live Speech Dictation (100% Free)
 - **Zero-Latency Streaming**: Speak and watch words transcribe live in real-time.
-- **Multilingual Support**: Real-time recognition across 20+ languages (English, Urdu, Hindi, Spanish, French, German, Arabic, Mandarin, Japanese, etc.).
+- **Multilingual Support**: Real-time recognition across 20+ languages.
 - **Live Reactive Waveform**: 48-band frequency spectrum visualizer with glowing neon caps.
 
-### 2. 🛡️ SweetAlert API Key Guard & Quick Setup
-- Intelligently alerts users if an API key is needed before running AI transformations, providing direct one-click links to obtain free Gemini, GPT, or Claude keys.
+### 2. 🛡️ Universal SweetAlert API Key Guard & Quick Setup
+- Automatically guards all AI features (**Ask AI**, **Fix Grammar**, **Summarize**, **Translate**, **Repurpose**, **Babel Mode**), popping up an alert with 1-click key guides if no key is entered.
 
 ### 3. 🌐 2-Way "Babel Mode" (Live Duplex Universal Translator)
 - Two people speaking different languages into one device. Transcribes, translates, and speaks aloud using Neural TTS.

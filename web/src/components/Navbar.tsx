@@ -20,6 +20,8 @@ export const Navbar: React.FC = () => {
     selectedAIProvider,
     setSelectedAIProvider,
     setModalOpen,
+    hasAnyApiKey,
+    triggerKeyRequiredModal,
   } = useVoiceStore();
 
   return (
@@ -103,7 +105,13 @@ export const Navbar: React.FC = () => {
 
           {/* Babel 2-Way Live Translator Trigger */}
           <button
-            onClick={() => setModalOpen('babel', true)}
+            onClick={() => {
+              if (!hasAnyApiKey()) {
+                triggerKeyRequiredModal('2-Way Babel Universal Translator');
+              } else {
+                setModalOpen('babel', true);
+              }
+            }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-cyan-600/20 to-indigo-600/20 hover:from-cyan-600/40 hover:to-indigo-600/40 border border-cyan-500/30 text-cyan-300 hover:text-white transition-all shadow-sm active:scale-95"
             title="Open 2-Way Live Babel Universal Translator"
           >

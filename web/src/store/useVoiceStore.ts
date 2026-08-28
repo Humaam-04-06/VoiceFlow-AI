@@ -88,6 +88,8 @@ interface VoiceStoreState {
   isChatDrawerOpen: boolean;
   isTheaterSubtitleOpen: boolean;
   isBabelModalOpen: boolean;
+  isKeyRequiredModalOpen: boolean;
+  keyRequiredFeatureName: string;
 
   // History & Chat
   history: SessionHistoryItem[];
@@ -135,6 +137,9 @@ interface VoiceStoreState {
   setErrorMessage: (err: string | null) => void;
 
   setModalOpen: (modal: 'settings' | 'history' | 'upload' | 'chat' | 'theater' | 'babel', isOpen: boolean) => void;
+  triggerKeyRequiredModal: (featureName: string) => void;
+  closeKeyRequiredModal: () => void;
+  hasAnyApiKey: () => boolean;
   
   saveCurrentSessionToHistory: (title?: string) => void;
   loadSessionFromHistory: (session: SessionHistoryItem) => void;
@@ -230,6 +235,8 @@ export const useVoiceStore = create<VoiceStoreState>()(
       isChatDrawerOpen: false,
       isTheaterSubtitleOpen: false,
       isBabelModalOpen: false,
+      isKeyRequiredModalOpen: false,
+      keyRequiredFeatureName: 'AI Feature',
 
       // History & Chat
       history: [],
@@ -469,6 +476,13 @@ export const useVoiceStore = create<VoiceStoreState>()(
         if (modal === 'chat') set({ isChatDrawerOpen: isOpen });
         if (modal === 'theater') set({ isTheaterSubtitleOpen: isOpen });
         if (modal === 'babel') set({ isBabelModalOpen: isOpen });
+      },
+
+      triggerKeyRequiredModal: (featureName) => set({ isKeyRequiredModalOpen: true, keyRequiredFeatureName: featureName }),
+      closeKeyRequiredModal: () => set({ isKeyRequiredModalOpen: false }),
+      hasAnyApiKey: () => {
+        const { apiKeys } = get();
+        return Boolean(apiKeys?.geminiKey?.trim() || apiKeys?.openaiKey?.trim() || apiKeys?.claudeKey?.trim());
       },
 
       saveCurrentSessionToHistory: (customTitle) => {

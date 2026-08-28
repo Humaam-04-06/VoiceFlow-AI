@@ -75,6 +75,8 @@ export const TranscriptionWorkspace: React.FC = () => {
     setSpeakerNames,
     setIsAiProcessing,
     saveCurrentSessionToHistory,
+    hasAnyApiKey,
+    triggerKeyRequiredModal,
   } = useVoiceStore();
 
   const [copied, setCopied] = useState(false);
@@ -85,7 +87,11 @@ export const TranscriptionWorkspace: React.FC = () => {
   const [alertFeatureName, setAlertFeatureName] = useState('AI Feature');
 
   const checkApiKey = (featureName: string): boolean => {
-    if (selectedAIProvider === 'free-local') return true;
+    if (!hasAnyApiKey()) {
+      setAlertFeatureName(featureName);
+      setIsKeyAlertOpen(true);
+      return false;
+    }
     
     if (selectedAIProvider === 'gemini' && !apiKeys.geminiKey?.trim()) {
       setAlertFeatureName(`${featureName} (Google Gemini)`);

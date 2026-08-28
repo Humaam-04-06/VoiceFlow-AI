@@ -4,62 +4,74 @@ import React from 'react';
 import { useVoiceStore } from '@/store/useVoiceStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faTriangleExclamation, 
   faKey, 
   faGear, 
   faXmark, 
   faArrowUpRightFromSquare,
-  faWandMagicSparkles
+  faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons';
 
 interface ApiKeyRequiredModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
   featureName?: string;
 }
 
 export const ApiKeyRequiredModal: React.FC<ApiKeyRequiredModalProps> = ({
-  isOpen,
-  onClose,
-  featureName = 'AI Feature',
+  isOpen: propIsOpen,
+  onClose: propOnClose,
+  featureName: propFeatureName,
 }) => {
-  const { setModalOpen } = useVoiceStore();
+  const { 
+    isKeyRequiredModalOpen, 
+    closeKeyRequiredModal, 
+    keyRequiredFeatureName, 
+    setModalOpen 
+  } = useVoiceStore();
 
-  if (!isOpen) return null;
+  const isVisible = propIsOpen !== undefined ? propIsOpen : isKeyRequiredModalOpen;
+  const activeFeatureName = propFeatureName || keyRequiredFeatureName || 'AI Feature';
+
+  if (!isVisible) return null;
+
+  const handleClose = () => {
+    if (propOnClose) propOnClose();
+    closeKeyRequiredModal();
+  };
 
   const handleOpenSettings = () => {
-    onClose();
+    handleClose();
     setModalOpen('settings', true);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="bg-neutral-900 border border-amber-500/30 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col animate-scale-up">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
+      <div className="bg-neutral-900 border border-amber-500/40 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col animate-scale-up">
         {/* Sweet Alert Top Glow Header */}
-        <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-b from-amber-500/15 via-neutral-900 to-neutral-900 border-b border-white/5 text-center relative">
+        <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-b from-amber-500/20 via-neutral-900 to-neutral-900 border-b border-white/5 text-center relative">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-neutral-800/80 hover:bg-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center transition-all"
           >
             <FontAwesomeIcon icon={faXmark} className="text-sm" />
           </button>
 
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-2xl shadow-xl shadow-amber-500/30 mb-3 animate-bounce">
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-2xl shadow-xl shadow-amber-500/40 mb-3 animate-bounce">
             <FontAwesomeIcon icon={faKey} />
           </div>
 
           <h2 className="text-base sm:text-lg font-bold text-white">
             AI API Key Required
           </h2>
-          <p className="text-xs text-amber-200/80 mt-1 max-w-xs">
-            To use <strong>{featureName}</strong>, please provide an API key for <strong>Gemini</strong>, <strong>OpenAI GPT</strong>, or <strong>Claude</strong>.
+          <p className="text-xs text-amber-200/90 mt-1 max-w-sm leading-relaxed">
+            To use <strong>{activeFeatureName}</strong>, please provide an API key for <strong>Google Gemini</strong>, <strong>OpenAI GPT</strong>, or <strong>Claude</strong> first. Otherwise, this feature cannot process your speech.
           </p>
         </div>
 
         {/* Step-by-Step Instructions */}
         <div className="p-6 space-y-4 text-xs">
           <h3 className="font-bold text-white text-xs uppercase tracking-wider text-neutral-400">
-            How to get your API Key (Free & Easy):
+            How to get your API Key (100% Free & Fast):
           </h3>
 
           <div className="space-y-2.5">
@@ -119,7 +131,7 @@ export const ApiKeyRequiredModal: React.FC<ApiKeyRequiredModalProps> = ({
         {/* Action Footer */}
         <div className="px-6 py-4 border-t border-white/10 bg-neutral-950/80 flex items-center justify-between gap-3">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-xs text-neutral-400 hover:text-white px-3 py-2"
           >
             Cancel
