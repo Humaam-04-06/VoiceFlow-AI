@@ -7,25 +7,15 @@ export type TTSEngine = 'kokoro' | 'edge-neural' | 'browser' | 'openai';
 export type AudioSourceType = 'microphone' | 'tab-audio';
 
 export type AIProvider = 
-  | 'free-local'
   | 'gemini'
-  | 'groq'
   | 'openai'
   | 'claude'
-  | 'grok'
-  | 'kimi'
-  | 'deepseek'
-  | 'openrouter';
+  | 'free-local';
 
 export interface APIKeysConfig {
   geminiKey?: string;
-  groqKey?: string;
   openaiKey?: string;
   claudeKey?: string;
-  grokKey?: string;
-  kimiKey?: string;
-  deepseekKey?: string;
-  openrouterKey?: string;
 }
 
 export interface TranscriptSegment {

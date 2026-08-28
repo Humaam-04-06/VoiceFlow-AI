@@ -78,23 +78,11 @@ export const Navbar: React.FC = () => {
               <option value="gemini" className="bg-neutral-900 text-white">
                 Google Gemini (Free Tier)
               </option>
-              <option value="groq" className="bg-neutral-900 text-white">
-                Groq LLaMA-3.3 (Free Tier)
-              </option>
               <option value="openai" className="bg-neutral-900 text-white">
                 OpenAI GPT-4o (BYOK)
               </option>
               <option value="claude" className="bg-neutral-900 text-white">
-                Anthropic Claude (BYOK)
-              </option>
-              <option value="deepseek" className="bg-neutral-900 text-white">
-                DeepSeek-V3 (BYOK)
-              </option>
-              <option value="grok" className="bg-neutral-900 text-white">
-                xAI Grok (BYOK)
-              </option>
-              <option value="kimi" className="bg-neutral-900 text-white">
-                Moonshot KIMI (BYOK)
+                Anthropic Claude 3.5 (BYOK)
               </option>
             </select>
           </div>

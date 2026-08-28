@@ -30,6 +30,8 @@ interface BabelMessage {
   timestamp: number;
 }
 
+import { ApiKeyRequiredModal } from './ApiKeyRequiredModal';
+
 export const BabelTranslatorModal: React.FC = () => {
   const {
     isBabelModalOpen,
@@ -46,14 +48,38 @@ export const BabelTranslatorModal: React.FC = () => {
   const [inputB, setInputB] = useState('');
   const [conversation, setConversation] = useState<BabelMessage[]>([]);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isKeyAlertOpen, setIsKeyAlertOpen] = useState(false);
+  const [alertFeatureName, setAlertFeatureName] = useState('Babel Universal Translator');
 
   if (!isBabelModalOpen) return null;
 
   const langAObj = SUPPORTED_LANGUAGES.find(l => l.code === langA) || SUPPORTED_LANGUAGES[0];
   const langBObj = SUPPORTED_LANGUAGES.find(l => l.code === langB) || SUPPORTED_LANGUAGES[1];
 
+  const checkApiKey = (): boolean => {
+    if (selectedAIProvider === 'free-local') return true;
+    
+    if (selectedAIProvider === 'gemini' && !apiKeys.geminiKey?.trim()) {
+      setAlertFeatureName('Babel Live Translator (Google Gemini)');
+      setIsKeyAlertOpen(true);
+      return false;
+    }
+    if (selectedAIProvider === 'openai' && !apiKeys.openaiKey?.trim()) {
+      setAlertFeatureName('Babel Live Translator (OpenAI GPT-4o)');
+      setIsKeyAlertOpen(true);
+      return false;
+    }
+    if (selectedAIProvider === 'claude' && !apiKeys.claudeKey?.trim()) {
+      setAlertFeatureName('Babel Live Translator (Anthropic Claude)');
+      setIsKeyAlertOpen(true);
+      return false;
+    }
+    return true;
+  };
+
   const handleTranslateAndSpeak = async (sender: 'personA' | 'personB', text: string) => {
     if (!text.trim()) return;
+    if (!checkApiKey()) return;
 
     const fromLangObj = sender === 'personA' ? langAObj : langBObj;
     const toLangObj = sender === 'personA' ? langBObj : langAObj;
@@ -276,6 +302,13 @@ export const BabelTranslatorModal: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Sweet Alert Key Required Modal */}
+        <ApiKeyRequiredModal
+          isOpen={isKeyAlertOpen}
+          onClose={() => setIsKeyAlertOpen(false)}
+          featureName={alertFeatureName}
+        />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 # 🎙️ VoiceFlow AI — Universal Voice Intelligence Studio (Web & Mobile)
 
-An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription Suite** built for cross-platform deployment across **Web** (Next.js 16 + React 19) and **Mobile** (React Native + whisper.cpp CoreML / NPU). Powered by **OpenAI Whisper**, **whisper.cpp** (C/C++ native engine), **Kokoro-82M Neural TTS**, and a **Multi-LLM BYOK & 100% Free Local NLP** suite.
+An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription Suite** built for cross-platform deployment across **Web** (Next.js 16 + React 19) and **Mobile** (React Native + whisper.cpp CoreML / NPU). Powered by **OpenAI Whisper**, **whisper.cpp** (C/C++ native engine), **Kokoro-82M Neural TTS**, and focused exclusively on the three premier foundation models: **Google Gemini**, **OpenAI GPT-4o**, and **Anthropic Claude 3.5**.
 
 ---
 
@@ -12,7 +12,22 @@ An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription
 
 ---
 
-## 🛠️ Complete Multi-Platform Tech Stack
+## 🔑 Supported AI Models & Step-by-Step API Key Setup
+
+VoiceFlow AI is laser-focused on the 3 industry-leading foundation models:
+
+| Provider | Supported Model | How to Get Your API Key |
+| :--- | :--- | :--- |
+| 🌟 **Google Gemini** | `gemini-2.0-flash` (100% Free Tier) | 1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)<br>2. Sign in with Google and click **Create API key**<br>3. Paste into VoiceFlow Settings. |
+| ⚡ **OpenAI** | `gpt-4o`, `gpt-4o-mini` | 1. Go to [OpenAI API Keys](https://platform.openai.com/api-keys)<br>2. Create a new Secret Key<br>3. Paste into VoiceFlow Settings. |
+| 🧠 **Anthropic Claude** | `claude-3-5-sonnet` | 1. Go to [Anthropic Console](https://console.anthropic.com/settings/keys)<br>2. Generate an API Key<br>3. Paste into VoiceFlow Settings. |
+
+> [!TIP]
+> **Built-in SweetAlert Key Guard**: If a user clicks any cloud AI feature (Fix Grammar, Summarize, Translate, Repurpose, or Babel Mode) without having added an API key, VoiceFlow automatically presents a guided SweetAlert modal with direct links and instructions on how to get their key in 10 seconds!
+
+---
+
+## 🛠️ Multi-Platform Tech Stack
 
 | Layer | Web Application (`/web`) | Mobile Application (`/mobile`) |
 | :--- | :--- | :--- |
@@ -35,43 +50,35 @@ An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription
 - **Multilingual Support**: Real-time recognition across 20+ languages (English, Urdu, Hindi, Spanish, French, German, Arabic, Mandarin, Japanese, etc.).
 - **Live Reactive Waveform**: 48-band frequency spectrum visualizer with glowing neon caps.
 
-### 2. 🌐 2-Way "Babel Mode" (Live Duplex Universal Translator)
-- **Simultaneous 2-Way Translation**: Two people speaking different languages (e.g. Person A in English, Person B in Spanish/Urdu).
-- Transcribes, translates, and automatically speaks aloud in the partner's native language using Neural TTS.
+### 2. 🛡️ SweetAlert API Key Guard & Quick Setup
+- Intelligently alerts users if an API key is needed before running AI transformations, providing direct one-click links to obtain free Gemini, GPT, or Claude keys.
 
-### 3. 🔇 Multi-Stage DSP Noise Cancellation & Audio Clarity
-- **85Hz High-Pass Rumble Filter**: Eliminates table bumps, mic pops, and AC hum.
-- **8500Hz Low-Pass Filter**: Removes computer fan noise and coil whine.
-- **60Hz Ground Loop Notch**: Cuts electrical power interference.
-- **Dynamics Vocal Compressor**: Balances vocal levels and silences room noise floors.
+### 3. 🌐 2-Way "Babel Mode" (Live Duplex Universal Translator)
+- Two people speaking different languages into one device. Transcribes, translates, and speaks aloud using Neural TTS.
 
-### 4. 🎚️ Studio Vocal Mastering & Radio Host EQ Presets
-- **Clean DSP**: Balanced studio noise reduction.
-- **Podcast Warmth**: Low-end richness boost (+3dB at 150Hz).
-- **Broadcast Radio**: Presence & high-end air boost (+2.5dB at 3.5kHz).
-- **Crisp Clarity**: Mid-range articulation boost for rapid speech.
+### 4. 🔇 Multi-Stage DSP Noise Cancellation & Audio Clarity
+- Cuts low-frequency rumble (85Hz High-Pass), high-frequency fan hiss (8500Hz Low-Pass), 60Hz AC electrical hum, and dynamically compresses vocals.
 
-### 5. 📑 Official Corporate Meeting Minutes (MoM) & Executive PDF
-- Transforms meeting transcripts into formal corporate documents with *Objectives*, *Key Discussions*, *Decision Matrix*, and *Action Items*.
-- 1-Click **"MoM PDF"** export with formal executive approval signature blocks.
+### 5. 🎚️ Studio Vocal Mastering & Radio Host EQ Presets
+- 1-Click EQ mastering for replay audio: `Clean DSP`, `Podcast Warmth`, `Broadcast Radio`, and `Crisp Clarity`.
 
-### 6. 🔍 "Ask My Voice Vault" (Semantic Audio Search)
-- Real-time keyword and topic search across all saved voice notes and history with instant session recall.
+### 6. 📑 Official Corporate Meeting Minutes (MoM) & Executive PDF
+- Generates official structured meeting minutes with discussion breakdown, decisions, action item tables, and executive signature blocks.
 
-### 7. 🪄 Smart Voice Macro Triggers & Action Board (Auto-Kanban)
+### 7. 🔍 "Ask My Voice Vault" (Semantic Audio Search)
+- Search across months of saved voice notes by concept or keyword with instant recall.
+
+### 8. 🪄 Smart Voice Macro Triggers & Action Board (Auto-Kanban)
 - Say `"Task: ..."`, `"Idea: ..."`, or `"Important: ..."` while speaking to automatically pin interactive cards to a live task board.
 
-### 8. 👥 Multi-Speaker Diarization (Dialogue Splitter)
+### 9. 👥 Multi-Speaker Diarization (Dialogue Splitter)
 - Color-coded dialogue bubbles (Speaker 1 in violet, Speaker 2 in cyan) with customizable speaker names.
 
-### 9. 🎬 Floating Dual-Language Theater Subtitles
+### 10. 🎬 Floating Dual-Language Theater Subtitles
 - Floating cinematic subtitle overlay with live original speech on top and translated subtitles below.
 
-### 10. 📹 Video / Audio URL Importer
+### 11. 📹 Video / Audio URL Importer
 - Import online lectures, streaming audio feeds, and video URLs for direct speech extraction and summarization.
-
-### 11. 🧠 Multi-LLM BYOK & 100% Free Offline NLP
-- Zero-cost local regex NLP engine + BYOK support for Gemini, Claude 3.5, GPT-4o, Groq LLaMA-3.3, Grok 2, DeepSeek, and KIMI.
 
 ### 12. 📱 100% Offline Mobile Companion App (`/mobile`)
 - On-device speech recognition powered by `whisper.cpp` running on iOS CoreML and Android NPU with zero server latency and total privacy.
@@ -90,15 +97,16 @@ Voice_To_Text_App/
 │   │   │   ├── layout.tsx         # Root layout with Font Awesome CSS & SEO
 │   │   │   └── page.tsx           # Main application page
 │   │   ├── components/            # UI Components with Font Awesome SVG icons
+│   │   │   ├── ApiKeyRequiredModal.tsx    # SweetAlert API key guard & guide
 │   │   │   ├── AudioFileUploadModal.tsx   # File & Video URL importer
 │   │   │   ├── AudioPlaybackPlayer.tsx    # Real voice replay & EQ presets
 │   │   │   ├── BabelTranslatorModal.tsx   # 2-Way live duplex translator
-│   │   │   ├── ChatDrawer.tsx
+│   │   │   ├── ChatDrawer.tsx             # Ask AI transcript chat
 │   │   │   ├── HeroRecordingZone.tsx
 │   │   │   ├── HistoryDrawer.tsx          # Semantic Voice Vault search
 │   │   │   ├── MindmapViewer.tsx
-│   │   │   ├── Navbar.tsx
-│   │   │   ├── SettingsModal.tsx
+│   │   │   ├── Navbar.tsx                 # Gemini, GPT, Claude switcher
+│   │   │   ├── SettingsModal.tsx          # Key settings with step-by-step guides
 │   │   │   ├── SpeechCoachWidget.tsx
 │   │   │   ├── TheaterSubtitleModal.tsx   # Floating dual subtitles
 │   │   │   ├── ToneSentimentRadar.tsx     # Live emotional mood & tone HUD
@@ -109,7 +117,7 @@ Voice_To_Text_App/
 │   │   │   ├── useAudioRecorder.ts        # Multi-stage DSP noise filter
 │   │   │   └── useSpeechRecognition.ts
 │   │   ├── lib/
-│   │   │   ├── ai/                        # Multi-LLM & Local NLP dispatchers
+│   │   │   ├── ai/                        # Gemini, GPT, Claude dispatchers
 │   │   │   ├── audio/                     # TTS and audio filter engines
 │   │   │   └── constants/                 # Supported multilingual list
 │   │   ├── store/                         # Zustand Global Voice Store

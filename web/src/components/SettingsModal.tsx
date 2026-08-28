@@ -2,56 +2,56 @@
 
 import React, { useState } from 'react';
 import { useVoiceStore } from '@/store/useVoiceStore';
+import { STTEngine, TTSEngine, AIProvider } from '@/types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faXmark, 
-  faKey, 
-  faVolumeHigh, 
-  faSliders, 
-  faShieldHalved, 
-  faMicrochip, 
-  faEye, 
-  faEyeSlash, 
+import {
+  faXmark,
+  faGear,
+  faSliders,
+  faKey,
+  faMicrophone,
+  faVolumeHigh,
+  faShieldHalved,
+  faArrowUpRightFromSquare,
   faCircleCheck,
-  faAward
+  faWandMagicSparkles,
+  faRobot
 } from '@fortawesome/free-solid-svg-icons';
-import { TTSEngine, AIProvider } from '@/types';
 
 export const SettingsModal: React.FC = () => {
   const {
     isSettingsOpen,
     setModalOpen,
-    apiKeys,
-    setApiKey,
+    sttEngine,
+    setSttEngine,
     ttsEngine,
     setTtsEngine,
+    selectedAIProvider,
+    setSelectedAIProvider,
+    apiKeys,
+    setApiKey,
     noiseGateEnabled,
     highPassFilterEnabled,
     autoPunctuation,
     setAudioFilterSettings,
   } = useVoiceStore();
 
-  const [activeTab, setActiveTab] = useState<'keys' | 'audio' | 'tts'>('keys');
-  const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
+  const [activeTab, setActiveTab] = useState<'ai' | 'audio'>('ai');
 
   if (!isSettingsOpen) return null;
-
-  const toggleShowKey = (id: string) => {
-    setShowKeys(prev => ({ ...prev, [id]: !prev[id] }));
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
       <div className="bg-neutral-900 border border-white/15 rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-neutral-950/60">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-neutral-950/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-violet-600/20 text-violet-400 border border-violet-500/30 flex items-center justify-center">
-              <FontAwesomeIcon icon={faSliders} className="text-sm" />
+            <div className="w-8 h-8 rounded-xl bg-violet-600/20 text-violet-400 flex items-center justify-center text-sm border border-violet-500/20">
+              <FontAwesomeIcon icon={faGear} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">App Settings & AI Keys</h2>
-              <p className="text-xs text-neutral-400">Configure BYOK AI Models, Audio Filters & TTS</p>
+              <h2 className="text-sm font-bold text-white">Application Settings</h2>
+              <p className="text-[10px] text-neutral-400">Configure Gemini, GPT, Claude API keys & Audio DSP</p>
             </div>
           </div>
           <button
@@ -63,324 +63,190 @@ export const SettingsModal: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 px-6 pt-4 border-b border-white/5 bg-neutral-900/50">
+        <div className="flex items-center px-6 border-b border-white/10 bg-neutral-950/40 gap-4">
           <button
-            onClick={() => setActiveTab('keys')}
-            className={`flex items-center gap-2 pb-3 px-2 text-xs font-semibold border-b-2 transition-all ${
-              activeTab === 'keys'
+            onClick={() => setActiveTab('ai')}
+            className={`py-3 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
+              activeTab === 'ai'
                 ? 'border-violet-500 text-violet-400'
-                : 'border-transparent text-neutral-400 hover:text-neutral-200'
+                : 'border-transparent text-neutral-400 hover:text-white'
             }`}
           >
             <FontAwesomeIcon icon={faKey} className="text-xs" />
-            AI API Keys (BYOK)
-          </button>
-          <button
-            onClick={() => setActiveTab('tts')}
-            className={`flex items-center gap-2 pb-3 px-2 text-xs font-semibold border-b-2 transition-all ${
-              activeTab === 'tts'
-                ? 'border-cyan-500 text-cyan-400'
-                : 'border-transparent text-neutral-400 hover:text-neutral-200'
-            }`}
-          >
-            <FontAwesomeIcon icon={faVolumeHigh} className="text-xs" />
-            Text-to-Speech (TTS)
+            AI Model Keys (Gemini, GPT, Claude)
           </button>
           <button
             onClick={() => setActiveTab('audio')}
-            className={`flex items-center gap-2 pb-3 px-2 text-xs font-semibold border-b-2 transition-all ${
+            className={`py-3 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
               activeTab === 'audio'
-                ? 'border-emerald-500 text-emerald-400'
-                : 'border-transparent text-neutral-400 hover:text-neutral-200'
+                ? 'border-violet-500 text-violet-400'
+                : 'border-transparent text-neutral-400 hover:text-white'
             }`}
           >
-            <FontAwesomeIcon icon={faMicrochip} className="text-xs" />
-            Audio & Filter Controls
+            <FontAwesomeIcon icon={faSliders} className="text-xs" />
+            Audio DSP & Noise Filter
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-4 flex-1">
-          {/* TAB 1: AI KEYS */}
-          {activeTab === 'keys' && (
-            <div className="space-y-4 text-xs">
-              <div className="p-3.5 rounded-2xl bg-violet-500/10 border border-violet-500/20 text-violet-200 flex items-start gap-2.5">
-                <FontAwesomeIcon icon={faShieldHalved} className="text-violet-400 text-sm flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-xs text-white">100% Client-Side Privacy</p>
-                  <p className="text-[11px] text-violet-300/90 leading-relaxed mt-0.5">
-                    Your API keys are stored locally on your device. Keys are used to unlock higher model limits and advanced summarization/translations.
-                  </p>
-                </div>
+        <div className="p-6 overflow-y-auto space-y-5 flex-1">
+          {activeTab === 'ai' ? (
+            <div className="space-y-4">
+              <div className="p-3 rounded-2xl bg-neutral-950/60 border border-white/5 text-xs text-neutral-300 flex items-start gap-2.5">
+                <FontAwesomeIcon icon={faWandMagicSparkles} className="text-cyan-400 text-xs mt-0.5" />
+                <p>
+                  Bring Your Own Key (BYOK) for <strong>Gemini</strong>, <strong>OpenAI GPT</strong>, or <strong>Claude</strong>. Keys are stored locally on your device.
+                </p>
               </div>
 
-              {/* Gemini Key */}
-              <div>
-                <label className="block text-neutral-300 font-semibold mb-1">
-                  Google Gemini API Key <span className="text-emerald-400 text-[10px]">(Free Tier Available)</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showKeys['gemini'] ? 'text' : 'password'}
-                    value={apiKeys.geminiKey || ''}
-                    onChange={(e) => setApiKey('geminiKey', e.target.value)}
-                    placeholder="AIzaSy..."
-                    className="w-full bg-neutral-950 border border-white/10 rounded-xl px-3 py-2 text-neutral-100 font-mono outline-none focus:border-violet-500 text-xs pr-9"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => toggleShowKey('gemini')}
-                    className="absolute right-2.5 top-2 text-neutral-400 hover:text-white"
+              {/* 1. Google Gemini */}
+              <div className="p-4 rounded-2xl bg-neutral-950/80 border border-white/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-violet-300 flex items-center gap-1.5">
+                    <FontAwesomeIcon icon={faRobot} className="text-violet-400" />
+                    Google Gemini API Key (100% Free Tier)
+                  </label>
+                  <a
+                    href="https://aistudio.google.com/app/apikey"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-violet-400 hover:underline flex items-center gap-1"
                   >
-                    <FontAwesomeIcon icon={showKeys['gemini'] ? faEyeSlash : faEye} className="text-xs" />
-                  </button>
+                    Get Key
+                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-[9px]" />
+                  </a>
                 </div>
+                <input
+                  type="password"
+                  value={apiKeys.geminiKey || ''}
+                  onChange={(e) => setApiKey('geminiKey', e.target.value)}
+                  placeholder="AIzaSy..."
+                  className="w-full bg-neutral-900 border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-white outline-none focus:border-violet-500"
+                />
               </div>
 
-              {/* Groq Key */}
-              <div>
-                <label className="block text-neutral-300 font-semibold mb-1">
-                  Groq Cloud API Key <span className="text-cyan-400 text-[10px]">(Fastest LLaMA-3.3 & Whisper Free Tier)</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showKeys['groq'] ? 'text' : 'password'}
-                    value={apiKeys.groqKey || ''}
-                    onChange={(e) => setApiKey('groqKey', e.target.value)}
-                    placeholder="gsk_..."
-                    className="w-full bg-neutral-950 border border-white/10 rounded-xl px-3 py-2 text-neutral-100 font-mono outline-none focus:border-cyan-500 text-xs pr-9"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => toggleShowKey('groq')}
-                    className="absolute right-2.5 top-2 text-neutral-400 hover:text-white"
+              {/* 2. OpenAI GPT */}
+              <div className="p-4 rounded-2xl bg-neutral-950/80 border border-white/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                    <FontAwesomeIcon icon={faRobot} className="text-emerald-400" />
+                    OpenAI GPT-4o / GPT-4o-mini API Key
+                  </label>
+                  <a
+                    href="https://platform.openai.com/api-keys"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-emerald-400 hover:underline flex items-center gap-1"
                   >
-                    <FontAwesomeIcon icon={showKeys['groq'] ? faEyeSlash : faEye} className="text-xs" />
-                  </button>
+                    Get Key
+                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-[9px]" />
+                  </a>
                 </div>
+                <input
+                  type="password"
+                  value={apiKeys.openaiKey || ''}
+                  onChange={(e) => setApiKey('openaiKey', e.target.value)}
+                  placeholder="sk-proj-..."
+                  className="w-full bg-neutral-900 border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-white outline-none focus:border-emerald-500"
+                />
               </div>
 
-              {/* OpenAI Key */}
-              <div>
-                <label className="block text-neutral-300 font-semibold mb-1">OpenAI API Key (GPT-4o & Whisper)</label>
-                <div className="relative">
-                  <input
-                    type={showKeys['openai'] ? 'text' : 'password'}
-                    value={apiKeys.openaiKey || ''}
-                    onChange={(e) => setApiKey('openaiKey', e.target.value)}
-                    placeholder="sk-proj-..."
-                    className="w-full bg-neutral-950 border border-white/10 rounded-xl px-3 py-2 text-neutral-100 font-mono outline-none focus:border-violet-500 text-xs pr-9"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => toggleShowKey('openai')}
-                    className="absolute right-2.5 top-2 text-neutral-400 hover:text-white"
+              {/* 3. Anthropic Claude */}
+              <div className="p-4 rounded-2xl bg-neutral-950/80 border border-white/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                    <FontAwesomeIcon icon={faRobot} className="text-amber-400" />
+                    Anthropic Claude 3.5 Sonnet API Key
+                  </label>
+                  <a
+                    href="https://console.anthropic.com/settings/keys"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-amber-400 hover:underline flex items-center gap-1"
                   >
-                    <FontAwesomeIcon icon={showKeys['openai'] ? faEyeSlash : faEye} className="text-xs" />
-                  </button>
+                    Get Key
+                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-[9px]" />
+                  </a>
                 </div>
-              </div>
-
-              {/* Claude Key */}
-              <div>
-                <label className="block text-neutral-300 font-semibold mb-1">Anthropic Claude API Key</label>
-                <div className="relative">
-                  <input
-                    type={showKeys['claude'] ? 'text' : 'password'}
-                    value={apiKeys.claudeKey || ''}
-                    onChange={(e) => setApiKey('claudeKey', e.target.value)}
-                    placeholder="sk-ant-..."
-                    className="w-full bg-neutral-950 border border-white/10 rounded-xl px-3 py-2 text-neutral-100 font-mono outline-none focus:border-violet-500 text-xs pr-9"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => toggleShowKey('claude')}
-                    className="absolute right-2.5 top-2 text-neutral-400 hover:text-white"
-                  >
-                    <FontAwesomeIcon icon={showKeys['claude'] ? faEyeSlash : faEye} className="text-xs" />
-                  </button>
-                </div>
-              </div>
-
-              {/* DeepSeek Key */}
-              <div>
-                <label className="block text-neutral-300 font-semibold mb-1">DeepSeek API Key (DeepSeek-V3 / R1)</label>
-                <div className="relative">
-                  <input
-                    type={showKeys['deepseek'] ? 'text' : 'password'}
-                    value={apiKeys.deepseekKey || ''}
-                    onChange={(e) => setApiKey('deepseekKey', e.target.value)}
-                    placeholder="sk-..."
-                    className="w-full bg-neutral-950 border border-white/10 rounded-xl px-3 py-2 text-neutral-100 font-mono outline-none focus:border-violet-500 text-xs pr-9"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => toggleShowKey('deepseek')}
-                    className="absolute right-2.5 top-2 text-neutral-400 hover:text-white"
-                  >
-                    <FontAwesomeIcon icon={showKeys['deepseek'] ? faEyeSlash : faEye} className="text-xs" />
-                  </button>
-                </div>
+                <input
+                  type="password"
+                  value={apiKeys.claudeKey || ''}
+                  onChange={(e) => setApiKey('claudeKey', e.target.value)}
+                  placeholder="sk-ant-..."
+                  className="w-full bg-neutral-900 border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-white outline-none focus:border-amber-500"
+                />
               </div>
             </div>
-          )}
-
-          {/* TAB 2: TTS SETTINGS */}
-          {activeTab === 'tts' && (
-            <div className="space-y-4 text-xs">
-              <p className="text-neutral-400">
-                Choose your preferred neural voice synthesis engine for reading back transcripts and translations.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  onClick={() => setTtsEngine('kokoro')}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
-                    ttsEngine === 'kokoro'
-                      ? 'bg-violet-500/15 border-violet-500 text-white'
-                      : 'bg-neutral-950/60 border-white/10 text-neutral-300 hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1 font-semibold">
-                    <span className="flex items-center gap-1.5">
-                      <FontAwesomeIcon icon={faAward} className="text-amber-400 text-xs" />
-                      Kokoro-82M Neural
-                    </span>
-                    <span className="text-[10px] text-emerald-400 font-mono">100% Free</span>
-                  </div>
-                  <p className="text-[11px] text-neutral-400">
-                    Hyper-realistic human tone and emotional cadence running via WebAssembly/ONNX.
-                  </p>
-                </button>
-
-                <button
-                  onClick={() => setTtsEngine('edge-neural')}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
-                    ttsEngine === 'edge-neural'
-                      ? 'bg-cyan-500/15 border-cyan-500 text-white'
-                      : 'bg-neutral-950/60 border-white/10 text-neutral-300 hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1 font-semibold">
-                    <span className="flex items-center gap-1.5">
-                      <FontAwesomeIcon icon={faVolumeHigh} className="text-cyan-400 text-xs" />
-                      Microsoft Edge Neural
-                    </span>
-                    <span className="text-[10px] text-cyan-400 font-mono">100% Free</span>
-                  </div>
-                  <p className="text-[11px] text-neutral-400">
-                    High-definition cloud studio voices in 70+ languages with zero API key required.
-                  </p>
-                </button>
-
-                <button
-                  onClick={() => setTtsEngine('browser')}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
-                    ttsEngine === 'browser'
-                      ? 'bg-emerald-500/15 border-emerald-500 text-white'
-                      : 'bg-neutral-950/60 border-white/10 text-neutral-300 hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1 font-semibold">
-                    <span className="flex items-center gap-1.5">
-                      <FontAwesomeIcon icon={faMicrochip} className="text-emerald-400 text-xs" />
-                      Browser Native Voice
-                    </span>
-                    <span className="text-[10px] text-neutral-400 font-mono">Instant</span>
-                  </div>
-                  <p className="text-[11px] text-neutral-400">
-                    Zero download, zero latency hardware-accelerated device speech synthesis.
-                  </p>
-                </button>
-
-                <button
-                  onClick={() => setTtsEngine('openai')}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
-                    ttsEngine === 'openai'
-                      ? 'bg-indigo-500/15 border-indigo-500 text-white'
-                      : 'bg-neutral-950/60 border-white/10 text-neutral-300 hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1 font-semibold">
-                    <span className="flex items-center gap-1.5">
-                      <FontAwesomeIcon icon={faKey} className="text-amber-400 text-xs" />
-                      OpenAI TTS-1
-                    </span>
-                    <span className="text-[10px] text-amber-400 font-mono">BYOK Key</span>
-                  </div>
-                  <p className="text-[11px] text-neutral-400">
-                    OpenAI Studio alloy & shimmer voices (requires OpenAI API Key in Settings).
-                  </p>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: AUDIO & FILTERS */}
-          {activeTab === 'audio' && (
-            <div className="space-y-4 text-xs">
-              <p className="text-neutral-400">
-                Fine-tune microphone filters and audio processing for crystal clear speech recognition.
-              </p>
-
-              <div className="space-y-3">
-                {/* Noise Gate Toggle */}
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-neutral-950/60 border border-white/10">
+          ) : (
+            <div className="space-y-4">
+              {/* Noise Gate & DSP Filter */}
+              <div className="p-4 rounded-2xl bg-neutral-950/80 border border-white/10 space-y-3">
+                <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-semibold text-white">Smart Noise Gate & Suppression</h4>
+                    <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <FontAwesomeIcon icon={faShieldHalved} className="text-emerald-400 text-xs" />
+                      DSP Noise Reduction & Fan Filter
+                    </h4>
                     <p className="text-[11px] text-neutral-400">
-                      Eliminates background fan noise, keyboard typing, and room echo.
+                      Multi-stage low-pass and high-pass filters to cut background hiss
                     </p>
                   </div>
                   <input
                     type="checkbox"
                     checked={noiseGateEnabled}
                     onChange={(e) => setAudioFilterSettings({ noiseGate: e.target.checked })}
-                    className="w-5 h-5 accent-violet-600 rounded cursor-pointer"
+                    className="w-4 h-4 accent-violet-600 rounded cursor-pointer"
                   />
                 </div>
+              </div>
 
-                {/* High Pass Filter */}
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-neutral-950/60 border border-white/10">
+              {/* 85Hz High Pass */}
+              <div className="p-4 rounded-2xl bg-neutral-950/80 border border-white/10 space-y-3">
+                <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-semibold text-white">80Hz High-Pass Rumble Filter</h4>
+                    <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <FontAwesomeIcon icon={faMicrophone} className="text-cyan-400 text-xs" />
+                      85Hz Low-End Rumble Cut
+                    </h4>
                     <p className="text-[11px] text-neutral-400">
-                      Cuts low-frequency microphone thumps and desk vibrations.
+                      Removes table bumps, mic handling pops, and electrical hum
                     </p>
                   </div>
                   <input
                     type="checkbox"
                     checked={highPassFilterEnabled}
                     onChange={(e) => setAudioFilterSettings({ highPass: e.target.checked })}
-                    className="w-5 h-5 accent-violet-600 rounded cursor-pointer"
+                    className="w-4 h-4 accent-violet-600 rounded cursor-pointer"
                   />
                 </div>
+              </div>
 
-                {/* Auto Punctuation */}
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-neutral-950/60 border border-white/10">
-                  <div>
-                    <h4 className="font-semibold text-white">Live Auto-Punctuation</h4>
-                    <p className="text-[11px] text-neutral-400">
-                      Automatically inserts commas and periods based on natural voice pauses.
-                    </p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={autoPunctuation}
-                    onChange={(e) => setAudioFilterSettings({ autoPunc: e.target.checked })}
-                    className="w-5 h-5 accent-violet-600 rounded cursor-pointer"
-                  />
-                </div>
+              {/* Neural TTS Engine */}
+              <div className="p-4 rounded-2xl bg-neutral-950/80 border border-white/10 space-y-2">
+                <label className="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                  <FontAwesomeIcon icon={faVolumeHigh} className="text-violet-400" />
+                  Neural Text-to-Speech (TTS) Voice Engine
+                </label>
+                <select
+                  value={ttsEngine}
+                  onChange={(e) => setTtsEngine(e.target.value as TTSEngine)}
+                  className="w-full bg-neutral-900 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white outline-none cursor-pointer"
+                >
+                  <option value="kokoro">Kokoro-82M Neural Voice (Ultra-Realistic)</option>
+                  <option value="edge-neural">Microsoft Edge Neural TTS</option>
+                  <option value="browser">Web Speech Native Engine</option>
+                  <option value="openai">OpenAI Neural TTS (tts-1)</option>
+                </select>
               </div>
             </div>
           )}
         </div>
 
-        {/* Modal Footer */}
+        {/* Footer */}
         <div className="px-6 py-4 border-t border-white/10 bg-neutral-950/60 flex items-center justify-end">
           <button
             onClick={() => setModalOpen('settings', false)}
-            className="px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg transition-all"
+            className="px-5 py-2 rounded-xl text-xs font-bold bg-violet-600 hover:bg-violet-500 text-white transition-all shadow-md active:scale-95"
           >
             Save & Close
           </button>

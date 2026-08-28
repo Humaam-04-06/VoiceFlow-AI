@@ -39,6 +39,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { RepurposeFormat } from '@/types';
 
+import { ApiKeyRequiredModal } from './ApiKeyRequiredModal';
+
 export const TranscriptionWorkspace: React.FC = () => {
   const {
     rawTranscript,
@@ -79,6 +81,29 @@ export const TranscriptionWorkspace: React.FC = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [targetLang, setTargetLang] = useState(targetTranslationLanguage || 'es-ES');
   const [repurposeFormat, setRepurposeFormat] = useState<RepurposeFormat>('email');
+  const [isKeyAlertOpen, setIsKeyAlertOpen] = useState(false);
+  const [alertFeatureName, setAlertFeatureName] = useState('AI Feature');
+
+  const checkApiKey = (featureName: string): boolean => {
+    if (selectedAIProvider === 'free-local') return true;
+    
+    if (selectedAIProvider === 'gemini' && !apiKeys.geminiKey?.trim()) {
+      setAlertFeatureName(`${featureName} (Google Gemini)`);
+      setIsKeyAlertOpen(true);
+      return false;
+    }
+    if (selectedAIProvider === 'openai' && !apiKeys.openaiKey?.trim()) {
+      setAlertFeatureName(`${featureName} (OpenAI GPT-4o)`);
+      setIsKeyAlertOpen(true);
+      return false;
+    }
+    if (selectedAIProvider === 'claude' && !apiKeys.claudeKey?.trim()) {
+      setAlertFeatureName(`${featureName} (Anthropic Claude)`);
+      setIsKeyAlertOpen(true);
+      return false;
+    }
+    return true;
+  };
 
   // Trigger 1-Click Copy with Confetti
   const handleCopy = (textToCopy: string) => {
@@ -101,6 +126,8 @@ export const TranscriptionWorkspace: React.FC = () => {
   // AI Transformations
   const handleFixGrammar = async () => {
     if (!rawTranscript.trim()) return;
+    if (!checkApiKey('Fix Grammar')) return;
+
     setIsAiProcessing(true, 'Fixing Grammar & Eliminating Filler Words...');
     try {
       const res = await dispatchAITask({
@@ -120,6 +147,8 @@ export const TranscriptionWorkspace: React.FC = () => {
 
   const handleSummarize = async () => {
     if (!rawTranscript.trim()) return;
+    if (!checkApiKey('Summarize & Extract Tasks')) return;
+
     setIsAiProcessing(true, 'Extracting Key Takeaways & Action Items...');
     try {
       const res = await dispatchAITask({
@@ -140,6 +169,8 @@ export const TranscriptionWorkspace: React.FC = () => {
 
   const handleTranslate = async () => {
     if (!rawTranscript.trim()) return;
+    if (!checkApiKey('Multilingual Translation')) return;
+
     const targetLangObj = SUPPORTED_LANGUAGES.find(l => l.code === targetLang);
     setIsAiProcessing(true, `Translating to ${targetLangObj?.name || targetLang}...`);
     try {
@@ -161,6 +192,8 @@ export const TranscriptionWorkspace: React.FC = () => {
 
   const handleRepurpose = async (format: RepurposeFormat) => {
     if (!rawTranscript.trim()) return;
+    if (!checkApiKey(`Repurpose to ${format.replace('-', ' ')}`)) return;
+
     setRepurposeFormat(format);
     setIsAiProcessing(true, `Repurposing to ${format.replace('-', ' ')}...`);
     try {
@@ -688,6 +721,13 @@ export const TranscriptionWorkspace: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Sweet Alert Key Required Modal */}
+      <ApiKeyRequiredModal
+        isOpen={isKeyAlertOpen}
+        onClose={() => setIsKeyAlertOpen(false)}
+        featureName={alertFeatureName}
+      />
     </div>
   );
 };
