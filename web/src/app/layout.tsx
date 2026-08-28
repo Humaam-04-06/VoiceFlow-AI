@@ -1,5 +1,10 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import '@fortawesome/fontawesome-svg-core/styles.css';
+import { config } from '@fortawesome/fontawesome-svg-core';
+
+// Prevent FontAwesome from adding its CSS automatically since we imported it above
+config.autoAddCss = false;
 
 export const metadata: Metadata = {
   title: 'VoiceFlow AI — Real-Time Voice to Text & Universal AI Speech Studio',

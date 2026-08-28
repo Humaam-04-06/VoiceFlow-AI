@@ -3,7 +3,16 @@
 import React, { useState } from 'react';
 import { useVoiceStore } from '@/store/useVoiceStore';
 import { dispatchAITask } from '@/lib/ai/aiDispatcher';
-import { X, Send, Bot, User, Sparkles, MessageSquare, Trash2 } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faXmark, 
+  faPaperPlane, 
+  faRobot, 
+  faUser, 
+  faComments, 
+  faTrashCan,
+  faQuestionCircle
+} from '@fortawesome/free-solid-svg-icons';
 
 export const ChatDrawer: React.FC = () => {
   const {
@@ -44,7 +53,7 @@ export const ChatDrawer: React.FC = () => {
         sender: 'ai',
         text: response.result || 'I have reviewed your speech transcript.',
       });
-    } catch (err: unknown) {
+    } catch {
       addChatMessage({
         sender: 'ai',
         text: 'Sorry, I encountered an issue analyzing the transcript.',
@@ -65,9 +74,9 @@ export const ChatDrawer: React.FC = () => {
       <div className="bg-neutral-900 border-l border-white/10 w-full max-w-md h-full shadow-2xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-neutral-950/60">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-xl bg-emerald-500/20 text-emerald-400">
-              <Bot className="w-4 h-4" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <FontAwesomeIcon icon={faRobot} className="text-sm" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-white">Chat with Transcript</h2>
@@ -78,17 +87,17 @@ export const ChatDrawer: React.FC = () => {
             {chatMessages.length > 0 && (
               <button
                 onClick={clearChat}
-                className="p-2 text-neutral-400 hover:text-rose-400 transition-colors"
+                className="w-8 h-8 rounded-xl text-neutral-400 hover:text-rose-400 transition-colors flex items-center justify-center"
                 title="Clear Chat"
               >
-                <Trash2 className="w-4 h-4" />
+                <FontAwesomeIcon icon={faTrashCan} className="text-xs" />
               </button>
             )}
             <button
               onClick={() => setModalOpen('chat', false)}
-              className="p-2 rounded-xl hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all"
+              className="w-8 h-8 rounded-xl hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all flex items-center justify-center"
             >
-              <X className="w-5 h-5" />
+              <FontAwesomeIcon icon={faXmark} className="text-base" />
             </button>
           </div>
         </div>
@@ -97,7 +106,7 @@ export const ChatDrawer: React.FC = () => {
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {chatMessages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-neutral-400 px-4">
-              <MessageSquare className="w-10 h-10 text-neutral-600 mb-3" />
+              <FontAwesomeIcon icon={faComments} className="text-4xl text-neutral-600 mb-3" />
               <p className="text-xs font-semibold text-neutral-200">Ask anything about your transcript</p>
               <p className="text-[11px] text-neutral-400 mt-1 max-w-xs">
                 The AI will answer questions, extract specific data points, or draft follow-up notes from what was spoken.
@@ -111,9 +120,10 @@ export const ChatDrawer: React.FC = () => {
                     onClick={() => {
                       setInputMessage(q);
                     }}
-                    className="text-left text-xs p-2.5 rounded-xl bg-neutral-950/80 border border-white/5 hover:border-emerald-500/30 text-neutral-300 hover:text-white transition-all"
+                    className="text-left text-xs p-2.5 rounded-xl bg-neutral-950/80 border border-white/5 hover:border-emerald-500/30 text-neutral-300 hover:text-white transition-all flex items-center gap-2"
                   >
-                    💬 {q}
+                    <FontAwesomeIcon icon={faQuestionCircle} className="text-emerald-400 text-xs" />
+                    <span>{q}</span>
                   </button>
                 ))}
               </div>
@@ -126,7 +136,7 @@ export const ChatDrawer: React.FC = () => {
               >
                 {msg.sender === 'ai' && (
                   <div className="w-7 h-7 rounded-xl bg-emerald-600/30 text-emerald-300 flex items-center justify-center flex-shrink-0 text-xs border border-emerald-500/20">
-                    <Bot className="w-3.5 h-3.5" />
+                    <FontAwesomeIcon icon={faRobot} className="text-xs" />
                   </div>
                 )}
                 <div
@@ -140,7 +150,7 @@ export const ChatDrawer: React.FC = () => {
                 </div>
                 {msg.sender === 'user' && (
                   <div className="w-7 h-7 rounded-xl bg-violet-600/30 text-violet-300 flex items-center justify-center flex-shrink-0 text-xs border border-violet-500/20">
-                    <User className="w-3.5 h-3.5" />
+                    <FontAwesomeIcon icon={faUser} className="text-xs" />
                   </div>
                 )}
               </div>
@@ -149,7 +159,7 @@ export const ChatDrawer: React.FC = () => {
 
           {isTyping && (
             <div className="flex items-center gap-2 text-xs text-neutral-400 animate-pulse">
-              <Bot className="w-4 h-4 text-emerald-400" />
+              <FontAwesomeIcon icon={faRobot} className="text-emerald-400 text-xs" />
               <span>AI is analyzing transcript...</span>
             </div>
           )}
@@ -167,9 +177,9 @@ export const ChatDrawer: React.FC = () => {
           <button
             type="submit"
             disabled={!inputMessage.trim() || isTyping}
-            className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-40 transition-all shadow-md active:scale-95"
+            className="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-40 transition-all shadow-md active:scale-95 flex items-center justify-center"
           >
-            <Send className="w-4 h-4" />
+            <FontAwesomeIcon icon={faPaperPlane} className="text-xs" />
           </button>
         </form>
       </div>

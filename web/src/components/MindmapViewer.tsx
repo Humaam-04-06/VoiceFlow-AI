@@ -1,8 +1,16 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useVoiceStore } from '@/store/useVoiceStore';
-import { Sparkles, Download, Copy, Check, RefreshCw } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faDiagramProject, 
+  faArrowsRotate, 
+  faCopy, 
+  faCheck,
+  faSitemap,
+  faCircleNodes
+} from '@fortawesome/free-solid-svg-icons';
 import { dispatchAITask } from '@/lib/ai/aiDispatcher';
 
 export const MindmapViewer: React.FC = () => {
@@ -54,7 +62,7 @@ export const MindmapViewer: React.FC = () => {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-cyan-400" />
+          <FontAwesomeIcon icon={faDiagramProject} className="text-cyan-400 text-sm" />
           <h3 className="text-sm font-semibold text-white">Interactive Concept Mindmap</h3>
           <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">
             Mermaid Graph
@@ -67,7 +75,7 @@ export const MindmapViewer: React.FC = () => {
             disabled={!rawTranscript.trim() || isAiProcessing}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white disabled:opacity-50 transition-all shadow-md active:scale-95"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isAiProcessing ? 'animate-spin' : ''}`} />
+            <FontAwesomeIcon icon={faArrowsRotate} className={`text-xs ${isAiProcessing ? 'animate-spin' : ''}`} />
             Regenerate Mindmap
           </button>
           {mindmapCode && (
@@ -75,7 +83,7 @@ export const MindmapViewer: React.FC = () => {
               onClick={handleCopyCode}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-white/10 transition-all"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              <FontAwesomeIcon icon={copied ? faCheck : faCopy} className={copied ? 'text-emerald-400 text-xs' : 'text-xs'} />
               {copied ? 'Copied' : 'Copy Code'}
             </button>
           )}
@@ -87,8 +95,9 @@ export const MindmapViewer: React.FC = () => {
         <div ref={containerRef} className="flex-1 flex flex-col items-center justify-center p-6 overflow-auto">
           <div className="flex flex-col items-center gap-4 max-w-xl w-full">
             {/* Root Node */}
-            <div className="px-6 py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-600 text-white font-bold text-base shadow-lg shadow-indigo-500/30 border border-white/20 text-center animate-fade-in">
-              🎙️ {lines[0]?.replace(/[()"[\]root:]/g, '').trim() || 'Voice Concept Root'}
+            <div className="px-6 py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-600 text-white font-bold text-base shadow-lg shadow-indigo-500/30 border border-white/20 text-center animate-fade-in flex items-center gap-2">
+              <FontAwesomeIcon icon={faCircleNodes} className="text-white text-base" />
+              {lines[0]?.replace(/[()"[\]root:]/g, '').trim() || 'Voice Concept Root'}
             </div>
 
             {/* Tree Branch Connectors */}
@@ -119,7 +128,7 @@ export const MindmapViewer: React.FC = () => {
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-neutral-400">
-          <Sparkles className="w-10 h-10 text-neutral-600 mb-3" />
+          <FontAwesomeIcon icon={faSitemap} className="text-4xl text-neutral-600 mb-3" />
           <p className="text-sm font-medium text-neutral-300">No Mindmap Generated Yet</p>
           <p className="text-xs text-neutral-400 max-w-sm mt-1">
             Speak or dictate your thoughts, then click "Generate Mindmap" to visualize your ideas as a structured concept map.

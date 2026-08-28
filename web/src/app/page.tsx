@@ -8,7 +8,15 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { HistoryDrawer } from '@/components/HistoryDrawer';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { AudioFileUploadModal } from '@/components/AudioFileUploadModal';
-import { Sparkles, Shield, Cpu, Zap, Heart } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faBolt, 
+  faMicrochip, 
+  faShieldHalved, 
+  faHeart,
+  faCodeBranch
+} from '@fortawesome/free-solid-svg-icons';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 export default function Home() {
   return (
@@ -32,11 +40,11 @@ export default function Home() {
           <TranscriptionWorkspace />
         </section>
 
-        {/* Feature Highlight Pills */}
+        {/* Feature Highlight Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto w-full pt-4">
           <div className="p-4 rounded-2xl bg-neutral-900/40 border border-white/5 flex items-start gap-3 backdrop-blur-sm">
-            <div className="p-2 rounded-xl bg-violet-500/10 text-violet-400 mt-0.5">
-              <Zap className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-violet-500/10 text-violet-400 mt-0.5 flex items-center justify-center flex-shrink-0">
+              <FontAwesomeIcon icon={faBolt} className="text-sm" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-white">100% Free & Real-Time</h4>
@@ -47,8 +55,8 @@ export default function Home() {
           </div>
 
           <div className="p-4 rounded-2xl bg-neutral-900/40 border border-white/5 flex items-start gap-3 backdrop-blur-sm">
-            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 mt-0.5">
-              <Cpu className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 mt-0.5 flex items-center justify-center flex-shrink-0">
+              <FontAwesomeIcon icon={faMicrochip} className="text-sm" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-white">Multi-AI Intelligence (BYOK)</h4>
@@ -59,8 +67,8 @@ export default function Home() {
           </div>
 
           <div className="p-4 rounded-2xl bg-neutral-900/40 border border-white/5 flex items-start gap-3 backdrop-blur-sm">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 mt-0.5">
-              <Shield className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 mt-0.5 flex items-center justify-center flex-shrink-0">
+              <FontAwesomeIcon icon={faShieldHalved} className="text-sm" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-white">100% Private & Local</h4>
@@ -81,8 +89,8 @@ export default function Home() {
       {/* Footer */}
       <footer className="w-full border-t border-white/10 py-6 px-4 text-center text-xs text-neutral-500 bg-neutral-950/80 mt-12">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="flex items-center gap-1">
-            Built with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" /> for high-speed speech intelligence.
+          <p className="flex items-center gap-1.5 justify-center">
+            Built with <FontAwesomeIcon icon={faHeart} className="text-rose-500 text-xs inline" /> for high-speed speech intelligence.
           </p>
           <div className="flex items-center gap-4 text-[11px] text-neutral-400">
             <span>Powered by OpenAI Whisper & Kokoro Neural TTS</span>
@@ -90,8 +98,9 @@ export default function Home() {
               href="https://github.com/Humaam-04-06/Voice_To_Text_App"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-violet-400 hover:underline"
+              className="text-violet-400 hover:underline flex items-center gap-1"
             >
+              <FontAwesomeIcon icon={faGithub} className="text-xs" />
               GitHub Repository
             </a>
           </div>

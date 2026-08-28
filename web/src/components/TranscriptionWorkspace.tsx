@@ -8,25 +8,29 @@ import { MindmapViewer } from './MindmapViewer';
 import { SUPPORTED_LANGUAGES } from '@/lib/constants/languages';
 import confetti from 'canvas-confetti';
 import { jsPDF } from 'jspdf';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Copy,
-  Check,
-  Sparkles,
-  FileText,
-  Languages,
-  Share2,
-  Download,
-  Volume2,
-  VolumeX,
-  RefreshCw,
-  Trash2,
-  BookmarkPlus,
-  Send,
-  SlidersHorizontal,
-  FileCode,
-  CheckSquare,
-  FileSpreadsheet
-} from 'lucide-react';
+  faCopy,
+  faCheck,
+  faWandMagicSparkles,
+  faFileLines,
+  faLanguage,
+  faShareNodes,
+  faVolumeHigh,
+  faVolumeXmark,
+  faRotate,
+  faBookmark,
+  faFilePdf,
+  faFileCode,
+  faListCheck,
+  faDiagramProject,
+  faEnvelope,
+  faHashtag,
+  faBriefcase,
+  faGraduationCap,
+  faNewspaper,
+  faArrowsRotate
+} from '@fortawesome/free-solid-svg-icons';
 import { RepurposeFormat } from '@/types';
 
 export const TranscriptionWorkspace: React.FC = () => {
@@ -218,7 +222,6 @@ export const TranscriptionWorkspace: React.FC = () => {
   };
 
   const handleExportSRT = (text: string) => {
-    // Generate simple SRT format with 4-second blocks
     const sentences = text.split(/(?<=[.?!])\s+/).filter(Boolean);
     let srtContent = '';
     let startSec = 0;
@@ -253,12 +256,23 @@ export const TranscriptionWorkspace: React.FC = () => {
       ? repurposedContent?.content || rawTranscript
       : rawTranscript;
 
+  const getRepurposeIcon = (fmt: RepurposeFormat) => {
+    switch (fmt) {
+      case 'email': return faEnvelope;
+      case 'twitter-thread': return faHashtag;
+      case 'linkedin-post': return faBriefcase;
+      case 'meeting-minutes': return faListCheck;
+      case 'study-flashcards': return faGraduationCap;
+      case 'blog-outline': return faNewspaper;
+    }
+  };
+
   return (
     <div className="flex flex-col w-full max-w-4xl mx-auto bg-neutral-900/70 border border-white/10 rounded-3xl p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden">
       {/* AI Processing Overlay Banner */}
       {isAiProcessing && (
         <div className="absolute inset-x-0 top-0 bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 py-1.5 px-4 text-center text-xs font-semibold text-white flex items-center justify-center gap-2 z-20 animate-pulse shadow-md">
-          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+          <FontAwesomeIcon icon={faArrowsRotate} className="text-xs animate-spin" />
           <span>{aiStatusMessage || 'AI Intelligence at work...'}</span>
         </div>
       )}
@@ -269,57 +283,57 @@ export const TranscriptionWorkspace: React.FC = () => {
         <div className="flex items-center gap-1 bg-neutral-950/60 p-1 rounded-2xl border border-white/10">
           <button
             onClick={() => setActiveWorkspaceTab('transcript')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'transcript'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
-            <FileText className="w-3.5 h-3.5 text-violet-400" />
+            <FontAwesomeIcon icon={faFileLines} className="text-violet-400 text-xs" />
             Raw Transcript
           </button>
           <button
             onClick={() => setActiveWorkspaceTab('polished')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'polished'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <FontAwesomeIcon icon={faWandMagicSparkles} className="text-cyan-400 text-xs" />
             Polished / Translated
           </button>
           <button
             onClick={() => setActiveWorkspaceTab('summary')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'summary'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
-            <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
+            <FontAwesomeIcon icon={faListCheck} className="text-emerald-400 text-xs" />
             Summary & Tasks
           </button>
           <button
             onClick={() => setActiveWorkspaceTab('mindmap')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'mindmap'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-400" />
+            <FontAwesomeIcon icon={faDiagramProject} className="text-indigo-400 text-xs" />
             Mindmap
           </button>
           <button
             onClick={() => setActiveWorkspaceTab('repurpose')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               activeWorkspaceTab === 'repurpose'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
-            <Share2 className="w-3.5 h-3.5 text-amber-400" />
+            <FontAwesomeIcon icon={faShareNodes} className="text-amber-400 text-xs" />
             Repurpose Studio
           </button>
         </div>
@@ -337,7 +351,10 @@ export const TranscriptionWorkspace: React.FC = () => {
             }`}
             title="Read Aloud with Neural TTS"
           >
-            {isSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-violet-400" />}
+            <FontAwesomeIcon
+              icon={isSpeaking ? faVolumeXmark : faVolumeHigh}
+              className={isSpeaking ? 'text-rose-400 text-xs' : 'text-violet-400 text-xs'}
+            />
             {isSpeaking ? 'Stop Voice' : 'Read Aloud'}
           </button>
 
@@ -345,11 +362,11 @@ export const TranscriptionWorkspace: React.FC = () => {
           <button
             onClick={() => handleCopy(currentActiveText)}
             disabled={!currentActiveText.trim()}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25 disabled:opacity-50 transition-all active:scale-95"
+            className="flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25 disabled:opacity-50 transition-all active:scale-95"
             title="Copy all text in 1 click"
           >
-            {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
-            {copied ? 'Copied to Clipboard!' : '1-Click Copy'}
+            <FontAwesomeIcon icon={copied ? faCheck : faCopy} className={copied ? 'text-emerald-300 text-xs' : 'text-xs'} />
+            {copied ? 'Copied!' : '1-Click Copy'}
           </button>
 
           {/* Save to History */}
@@ -359,10 +376,10 @@ export const TranscriptionWorkspace: React.FC = () => {
               confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
             }}
             disabled={!rawTranscript.trim()}
-            className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-white/10 text-neutral-300 hover:text-white transition-all disabled:opacity-40"
+            className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-white/10 text-neutral-300 hover:text-white transition-all disabled:opacity-40 w-8 h-8 flex items-center justify-center"
             title="Save Note to History"
           >
-            <BookmarkPlus className="w-4 h-4 text-emerald-400" />
+            <FontAwesomeIcon icon={faBookmark} className="text-emerald-400 text-xs" />
           </button>
         </div>
       </div>
@@ -374,25 +391,25 @@ export const TranscriptionWorkspace: React.FC = () => {
           <button
             onClick={handleFixGrammar}
             disabled={!rawTranscript.trim() || isAiProcessing}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-neutral-800/90 hover:bg-neutral-700 text-neutral-200 border border-white/10 hover:border-cyan-500/30 transition-all disabled:opacity-40 font-medium"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-800/90 hover:bg-neutral-700 text-neutral-200 border border-white/10 hover:border-cyan-500/30 transition-all disabled:opacity-40 font-medium"
           >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            ✨ Fix Grammar
+            <FontAwesomeIcon icon={faWandMagicSparkles} className="text-cyan-400 text-xs" />
+            Fix Grammar
           </button>
 
           {/* Smart Summarize */}
           <button
             onClick={handleSummarize}
             disabled={!rawTranscript.trim() || isAiProcessing}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-neutral-800/90 hover:bg-neutral-700 text-neutral-200 border border-white/10 hover:border-emerald-500/30 transition-all disabled:opacity-40 font-medium"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-800/90 hover:bg-neutral-700 text-neutral-200 border border-white/10 hover:border-emerald-500/30 transition-all disabled:opacity-40 font-medium"
           >
-            <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
-            📝 Summarize
+            <FontAwesomeIcon icon={faListCheck} className="text-emerald-400 text-xs" />
+            Summarize
           </button>
 
           {/* Translate */}
-          <div className="flex items-center gap-1 bg-neutral-800/90 border border-white/10 rounded-xl px-2 py-0.5">
-            <Languages className="w-3.5 h-3.5 text-indigo-400" />
+          <div className="flex items-center gap-1.5 bg-neutral-800/90 border border-white/10 rounded-xl px-2 py-0.5">
+            <FontAwesomeIcon icon={faLanguage} className="text-indigo-400 text-xs ml-1" />
             <select
               value={targetLang}
               onChange={(e) => setTargetLang(e.target.value)}
@@ -400,7 +417,7 @@ export const TranscriptionWorkspace: React.FC = () => {
             >
               {SUPPORTED_LANGUAGES.map(lang => (
                 <option key={lang.code} value={lang.code} className="bg-neutral-900 text-white">
-                  {lang.flag} {lang.name}
+                  {lang.name}
                 </option>
               ))}
             </select>
@@ -419,25 +436,28 @@ export const TranscriptionWorkspace: React.FC = () => {
           <button
             onClick={() => handleExportTxt(currentActiveText)}
             disabled={!currentActiveText.trim()}
-            className="px-2.5 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 text-[11px] font-medium border border-white/5 transition-all"
-            title="Download TXT"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 text-[11px] font-medium border border-white/5 transition-all"
+            title="Download Plain TXT"
           >
+            <FontAwesomeIcon icon={faFileLines} className="text-[10px] text-neutral-400" />
             .TXT
           </button>
           <button
             onClick={() => handleExportPDF(currentActiveText)}
             disabled={!currentActiveText.trim()}
-            className="px-2.5 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 text-[11px] font-medium border border-white/5 transition-all"
-            title="Download PDF"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 text-[11px] font-medium border border-white/5 transition-all"
+            title="Download Formatted PDF"
           >
+            <FontAwesomeIcon icon={faFilePdf} className="text-[10px] text-rose-400" />
             .PDF
           </button>
           <button
             onClick={() => handleExportSRT(currentActiveText)}
             disabled={!currentActiveText.trim()}
-            className="px-2.5 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 text-[11px] font-medium border border-white/5 transition-all"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 text-[11px] font-medium border border-white/5 transition-all"
             title="Download SRT Subtitles"
           >
+            <FontAwesomeIcon icon={faFileCode} className="text-[10px] text-amber-400" />
             .SRT
           </button>
         </div>
@@ -454,12 +474,13 @@ export const TranscriptionWorkspace: React.FC = () => {
                 <button
                   key={fmt}
                   onClick={() => handleRepurpose(fmt)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize border transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold capitalize border transition-all ${
                     repurposeFormat === fmt
                       ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
                       : 'bg-neutral-900 border-white/10 text-neutral-400 hover:text-white'
                   }`}
                 >
+                  <FontAwesomeIcon icon={getRepurposeIcon(fmt)} className="text-xs" />
                   {fmt.replace('-', ' ')}
                 </button>
               ))}
@@ -488,9 +509,9 @@ export const TranscriptionWorkspace: React.FC = () => {
               }}
               placeholder={
                 activeWorkspaceTab === 'polished'
-                  ? 'Click "✨ Fix Grammar" or "Translate" to view polished text here...'
+                  ? 'Click "Fix Grammar" or "Translate" to view polished text here...'
                   : activeWorkspaceTab === 'summary'
-                  ? 'Click "📝 Summarize" to generate key points and action items...'
+                  ? 'Click "Summarize" to generate key points and action items...'
                   : 'Start speaking or typing here... Speech will transcribe live in real-time.'
               }
               className="w-full min-h-[260px] flex-1 bg-neutral-950/80 border border-white/10 rounded-2xl p-5 text-neutral-100 text-base leading-relaxed font-sans outline-none focus:border-violet-500/50 resize-y backdrop-blur-md shadow-inner"

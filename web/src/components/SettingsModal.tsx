@@ -2,18 +2,19 @@
 
 import React, { useState } from 'react';
 import { useVoiceStore } from '@/store/useVoiceStore';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  X, 
-  KeyRound, 
-  Volume2, 
-  Sliders, 
-  ShieldCheck, 
-  Check, 
-  Sparkles, 
-  Cpu, 
-  Eye, 
-  EyeOff 
-} from 'lucide-react';
+  faXmark, 
+  faKey, 
+  faVolumeHigh, 
+  faSliders, 
+  faShieldHalved, 
+  faMicrochip, 
+  faEye, 
+  faEyeSlash, 
+  faCircleCheck,
+  faAward
+} from '@fortawesome/free-solid-svg-icons';
 import { TTSEngine, AIProvider } from '@/types';
 
 export const SettingsModal: React.FC = () => {
@@ -24,8 +25,6 @@ export const SettingsModal: React.FC = () => {
     setApiKey,
     ttsEngine,
     setTtsEngine,
-    selectedAIProvider,
-    setSelectedAIProvider,
     noiseGateEnabled,
     highPassFilterEnabled,
     autoPunctuation,
@@ -47,8 +46,8 @@ export const SettingsModal: React.FC = () => {
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-neutral-950/60">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-violet-600/20 text-violet-400 border border-violet-500/30">
-              <Sliders className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-violet-600/20 text-violet-400 border border-violet-500/30 flex items-center justify-center">
+              <FontAwesomeIcon icon={faSliders} className="text-sm" />
             </div>
             <div>
               <h2 className="text-base font-bold text-white">App Settings & AI Keys</h2>
@@ -57,9 +56,9 @@ export const SettingsModal: React.FC = () => {
           </div>
           <button
             onClick={() => setModalOpen('settings', false)}
-            className="p-2 rounded-xl hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all"
+            className="w-8 h-8 rounded-xl hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all flex items-center justify-center"
           >
-            <X className="w-5 h-5" />
+            <FontAwesomeIcon icon={faXmark} className="text-base" />
           </button>
         </div>
 
@@ -73,7 +72,7 @@ export const SettingsModal: React.FC = () => {
                 : 'border-transparent text-neutral-400 hover:text-neutral-200'
             }`}
           >
-            <KeyRound className="w-4 h-4" />
+            <FontAwesomeIcon icon={faKey} className="text-xs" />
             AI API Keys (BYOK)
           </button>
           <button
@@ -84,7 +83,7 @@ export const SettingsModal: React.FC = () => {
                 : 'border-transparent text-neutral-400 hover:text-neutral-200'
             }`}
           >
-            <Volume2 className="w-4 h-4" />
+            <FontAwesomeIcon icon={faVolumeHigh} className="text-xs" />
             Text-to-Speech (TTS)
           </button>
           <button
@@ -95,7 +94,7 @@ export const SettingsModal: React.FC = () => {
                 : 'border-transparent text-neutral-400 hover:text-neutral-200'
             }`}
           >
-            <Cpu className="w-4 h-4" />
+            <FontAwesomeIcon icon={faMicrochip} className="text-xs" />
             Audio & Filter Controls
           </button>
         </div>
@@ -106,7 +105,7 @@ export const SettingsModal: React.FC = () => {
           {activeTab === 'keys' && (
             <div className="space-y-4 text-xs">
               <div className="p-3.5 rounded-2xl bg-violet-500/10 border border-violet-500/20 text-violet-200 flex items-start gap-2.5">
-                <ShieldCheck className="w-5 h-5 text-violet-400 flex-shrink-0 mt-0.5" />
+                <FontAwesomeIcon icon={faShieldHalved} className="text-violet-400 text-sm flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-xs text-white">100% Client-Side Privacy</p>
                   <p className="text-[11px] text-violet-300/90 leading-relaxed mt-0.5">
@@ -133,7 +132,7 @@ export const SettingsModal: React.FC = () => {
                     onClick={() => toggleShowKey('gemini')}
                     className="absolute right-2.5 top-2 text-neutral-400 hover:text-white"
                   >
-                    {showKeys['gemini'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    <FontAwesomeIcon icon={showKeys['gemini'] ? faEyeSlash : faEye} className="text-xs" />
                   </button>
                 </div>
               </div>
@@ -156,7 +155,7 @@ export const SettingsModal: React.FC = () => {
                     onClick={() => toggleShowKey('groq')}
                     className="absolute right-2.5 top-2 text-neutral-400 hover:text-white"
                   >
-                    {showKeys['groq'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    <FontAwesomeIcon icon={showKeys['groq'] ? faEyeSlash : faEye} className="text-xs" />
                   </button>
                 </div>
               </div>
@@ -177,7 +176,7 @@ export const SettingsModal: React.FC = () => {
                     onClick={() => toggleShowKey('openai')}
                     className="absolute right-2.5 top-2 text-neutral-400 hover:text-white"
                   >
-                    {showKeys['openai'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    <FontAwesomeIcon icon={showKeys['openai'] ? faEyeSlash : faEye} className="text-xs" />
                   </button>
                 </div>
               </div>
@@ -198,7 +197,7 @@ export const SettingsModal: React.FC = () => {
                     onClick={() => toggleShowKey('claude')}
                     className="absolute right-2.5 top-2 text-neutral-400 hover:text-white"
                   >
-                    {showKeys['claude'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    <FontAwesomeIcon icon={showKeys['claude'] ? faEyeSlash : faEye} className="text-xs" />
                   </button>
                 </div>
               </div>
@@ -219,7 +218,7 @@ export const SettingsModal: React.FC = () => {
                     onClick={() => toggleShowKey('deepseek')}
                     className="absolute right-2.5 top-2 text-neutral-400 hover:text-white"
                   >
-                    {showKeys['deepseek'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    <FontAwesomeIcon icon={showKeys['deepseek'] ? faEyeSlash : faEye} className="text-xs" />
                   </button>
                 </div>
               </div>
@@ -243,7 +242,10 @@ export const SettingsModal: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1 font-semibold">
-                    <span>🥇 Kokoro-82M Neural</span>
+                    <span className="flex items-center gap-1.5">
+                      <FontAwesomeIcon icon={faAward} className="text-amber-400 text-xs" />
+                      Kokoro-82M Neural
+                    </span>
                     <span className="text-[10px] text-emerald-400 font-mono">100% Free</span>
                   </div>
                   <p className="text-[11px] text-neutral-400">
@@ -260,7 +262,10 @@ export const SettingsModal: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1 font-semibold">
-                    <span>🥈 Microsoft Edge Neural</span>
+                    <span className="flex items-center gap-1.5">
+                      <FontAwesomeIcon icon={faVolumeHigh} className="text-cyan-400 text-xs" />
+                      Microsoft Edge Neural
+                    </span>
                     <span className="text-[10px] text-cyan-400 font-mono">100% Free</span>
                   </div>
                   <p className="text-[11px] text-neutral-400">
@@ -277,7 +282,10 @@ export const SettingsModal: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1 font-semibold">
-                    <span>🥉 Browser Native Voice</span>
+                    <span className="flex items-center gap-1.5">
+                      <FontAwesomeIcon icon={faMicrochip} className="text-emerald-400 text-xs" />
+                      Browser Native Voice
+                    </span>
                     <span className="text-[10px] text-neutral-400 font-mono">Instant</span>
                   </div>
                   <p className="text-[11px] text-neutral-400">
@@ -294,7 +302,10 @@ export const SettingsModal: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1 font-semibold">
-                    <span>🏅 OpenAI TTS-1</span>
+                    <span className="flex items-center gap-1.5">
+                      <FontAwesomeIcon icon={faKey} className="text-amber-400 text-xs" />
+                      OpenAI TTS-1
+                    </span>
                     <span className="text-[10px] text-amber-400 font-mono">BYOK Key</span>
                   </div>
                   <p className="text-[11px] text-neutral-400">

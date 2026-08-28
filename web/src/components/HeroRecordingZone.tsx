@@ -6,7 +6,23 @@ import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { WaveformVisualizer } from './WaveformVisualizer';
 import { SpeechCoachWidget } from './SpeechCoachWidget';
-import { Mic, MicOff, Pause, Play, Square, RotateCcw, Volume2, Sparkles, Upload, History, Settings2, MessageSquare } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faMicrophone,
+  faPlay,
+  faPause,
+  faStop,
+  faRotateLeft,
+  faClock,
+  faCloudArrowUp,
+  faBookmark,
+  faSliders,
+  faComments,
+  faWaveSquare,
+  faHeadphones,
+  faCirclePause,
+  faCirclePlay
+} from '@fortawesome/free-solid-svg-icons';
 
 export const HeroRecordingZone: React.FC = () => {
   const {
@@ -70,7 +86,7 @@ export const HeroRecordingZone: React.FC = () => {
       {/* Top Floating Action Bar */}
       <div className="flex flex-wrap items-center justify-between w-full px-2 gap-3">
         <div className="flex items-center gap-2">
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border ${
+          <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border ${
             recordingState === 'recording'
               ? 'bg-rose-500/15 border-rose-500/30 text-rose-300 animate-pulse'
               : recordingState === 'paused'
@@ -84,15 +100,26 @@ export const HeroRecordingZone: React.FC = () => {
                 ? 'bg-amber-400'
                 : 'bg-emerald-400'
             }`} />
+            <FontAwesomeIcon
+              icon={
+                recordingState === 'recording'
+                  ? faWaveSquare
+                  : recordingState === 'paused'
+                  ? faCirclePause
+                  : faHeadphones
+              }
+              className="text-[11px]"
+            />
             {recordingState === 'recording'
-              ? (isSpeakingDetected ? '🎙️ Listening & Transcribing...' : '⏳ Waiting for Speech...')
+              ? (isSpeakingDetected ? 'Listening & Transcribing...' : 'Waiting for Speech...')
               : recordingState === 'paused'
-              ? '⏸️ Recording Paused'
-              : '✨ Ready to Dictate'}
+              ? 'Recording Paused'
+              : 'Ready to Dictate'}
           </div>
 
-          <div className="font-mono text-sm font-bold bg-neutral-900/80 border border-white/10 px-3 py-1.5 rounded-full text-neutral-200 backdrop-blur-md shadow-sm">
-            ⏱️ {formatTimer(durationSeconds)}
+          <div className="font-mono text-xs font-bold bg-neutral-900/80 border border-white/10 px-3 py-1.5 rounded-full text-neutral-200 backdrop-blur-md shadow-sm flex items-center gap-1.5">
+            <FontAwesomeIcon icon={faClock} className="text-violet-400 text-[11px]" />
+            {formatTimer(durationSeconds)}
           </div>
         </div>
 
@@ -102,29 +129,29 @@ export const HeroRecordingZone: React.FC = () => {
             onClick={() => setModalOpen('upload', true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 text-neutral-300 hover:text-white transition-all shadow-sm"
           >
-            <Upload className="w-3.5 h-3.5 text-cyan-400" />
+            <FontAwesomeIcon icon={faCloudArrowUp} className="text-cyan-400 text-xs" />
             Upload Audio
           </button>
           <button
             onClick={() => setModalOpen('history', true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 text-neutral-300 hover:text-white transition-all shadow-sm"
           >
-            <History className="w-3.5 h-3.5 text-violet-400" />
+            <FontAwesomeIcon icon={faBookmark} className="text-violet-400 text-xs" />
             Saved Notes
           </button>
           <button
             onClick={() => setModalOpen('chat', true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 text-neutral-300 hover:text-white transition-all shadow-sm"
           >
-            <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+            <FontAwesomeIcon icon={faComments} className="text-emerald-400 text-xs" />
             Ask AI
           </button>
           <button
             onClick={() => setModalOpen('settings', true)}
-            className="p-2 rounded-xl bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 text-neutral-300 hover:text-white transition-all shadow-sm"
-            title="Settings & API Keys"
+            className="p-2 rounded-xl bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 text-neutral-300 hover:text-white transition-all shadow-sm w-8 h-8 flex items-center justify-center"
+            title="Settings & Audio Filters"
           >
-            <Settings2 className="w-4 h-4 text-neutral-400" />
+            <FontAwesomeIcon icon={faSliders} className="text-xs text-neutral-400" />
           </button>
         </div>
       </div>
@@ -138,17 +165,17 @@ export const HeroRecordingZone: React.FC = () => {
         {durationSeconds > 0 && (
           <button
             onClick={handleReset}
-            className="p-3.5 rounded-full bg-neutral-900/90 hover:bg-neutral-800 border border-white/10 text-neutral-400 hover:text-rose-400 transition-all shadow-md active:scale-95"
+            className="w-12 h-12 rounded-full bg-neutral-900/90 hover:bg-neutral-800 border border-white/10 text-neutral-400 hover:text-rose-400 transition-all shadow-md active:scale-95 flex items-center justify-center"
             title="Clear & Reset"
           >
-            <RotateCcw className="w-5 h-5" />
+            <FontAwesomeIcon icon={faRotateLeft} className="text-base" />
           </button>
         )}
 
         {/* Master Record Button */}
         <button
           onClick={handleToggleRecord}
-          className={`relative group p-6 rounded-full transition-all duration-300 shadow-2xl active:scale-95 flex items-center justify-center ${
+          className={`relative group w-20 h-20 rounded-full transition-all duration-300 shadow-2xl active:scale-95 flex items-center justify-center ${
             recordingState === 'recording'
               ? 'bg-rose-500 text-white shadow-rose-500/50 hover:bg-rose-600 scale-105'
               : recordingState === 'paused'
@@ -165,11 +192,11 @@ export const HeroRecordingZone: React.FC = () => {
           )}
 
           {recordingState === 'recording' ? (
-            <Square className="w-8 h-8 fill-current" />
+            <FontAwesomeIcon icon={faStop} className="text-2xl" />
           ) : recordingState === 'paused' ? (
-            <Play className="w-8 h-8 fill-current translate-x-0.5" />
+            <FontAwesomeIcon icon={faPlay} className="text-2xl translate-x-0.5" />
           ) : (
-            <Mic className="w-8 h-8" />
+            <FontAwesomeIcon icon={faMicrophone} className="text-2xl" />
           )}
         </button>
 
@@ -177,14 +204,13 @@ export const HeroRecordingZone: React.FC = () => {
         {(recordingState === 'recording' || recordingState === 'paused') && (
           <button
             onClick={handlePauseResume}
-            className="p-3.5 rounded-full bg-neutral-900/90 hover:bg-neutral-800 border border-white/10 text-neutral-300 hover:text-amber-400 transition-all shadow-md active:scale-95"
+            className="w-12 h-12 rounded-full bg-neutral-900/90 hover:bg-neutral-800 border border-white/10 text-neutral-300 hover:text-amber-400 transition-all shadow-md active:scale-95 flex items-center justify-center"
             title={recordingState === 'paused' ? 'Resume' : 'Pause'}
           >
-            {recordingState === 'paused' ? (
-              <Play className="w-5 h-5 fill-current" />
-            ) : (
-              <Pause className="w-5 h-5 fill-current" />
-            )}
+            <FontAwesomeIcon
+              icon={recordingState === 'paused' ? faPlay : faPause}
+              className="text-base"
+            />
           </button>
         )}
       </div>
@@ -198,7 +224,7 @@ export const HeroRecordingZone: React.FC = () => {
           </>
         ) : recordingState === 'recording' ? (
           <>
-            Speaking now... Click the red stop button when finished.
+            Speaking now... Click the stop button when finished.
           </>
         ) : (
           <>Recording paused. Click play to resume.</>
