@@ -72,48 +72,88 @@ export function useAudioRecorder() {
         mediaStreamRef.current.getTracks().forEach(t => t.stop());
       }
 
+      // 1. Request hardware-level Echo Cancellation, Noise Suppression, and Auto Gain
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
-          noiseSuppression: noiseGateEnabled,
+          noiseSuppression: true,
           autoGainControl: true,
-          sampleRate: 44100,
+          channelCount: 1,
+          sampleRate: 48000,
         },
       });
 
       mediaStreamRef.current = stream;
 
-      // Setup AudioContext & Filter Chain
+      // 2. Setup Web Audio DSP Noise Cancellation Graph
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const audioCtx = new AudioCtx();
+      const audioCtx = new AudioCtx({ sampleRate: 48000 });
       audioContextRef.current = audioCtx;
 
       const source = audioCtx.createMediaStreamSource(stream);
+
+      // Node A: High-Pass Filter (Cuts 85Hz low-frequency room rumble, desk bumps & AC hum)
+      const highPass = audioCtx.createBiquadFilter();
+      highPass.type = 'highpass';
+      highPass.frequency.value = 85;
+      highPass.Q.value = 0.7;
+
+      // Node B: Low-Pass Filter (Cuts >8500Hz high-frequency hiss, fan noise, and coil whine)
+      const lowPass = audioCtx.createBiquadFilter();
+      lowPass.type = 'lowpass';
+      lowPass.frequency.value = 8500;
+      lowPass.Q.value = 0.7;
+
+      // Node C: 50Hz/60Hz AC Power Line Notch Hum Filter
+      const notchFilter = audioCtx.createBiquadFilter();
+      notchFilter.type = 'notch';
+      notchFilter.frequency.value = 60;
+      notchFilter.Q.value = 4.0;
+
+      // Node D: Studio Dynamics Compressor (Levels vocal volume & eliminates background noise floor)
+      const compressor = audioCtx.createDynamicsCompressor();
+      compressor.threshold.setValueAtTime(-24, audioCtx.currentTime);
+      compressor.knee.setValueAtTime(30, audioCtx.currentTime);
+      compressor.ratio.setValueAtTime(4, audioCtx.currentTime);
+      compressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
+      compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
+
+      // Node E: Analyser for live visualizer
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 256;
       analyser.smoothingTimeConstant = 0.8;
       analyserRef.current = analyser;
 
-      if (highPassFilterEnabled) {
-        // High-pass filter at 80Hz to eliminate low-frequency rumble
-        const highPass = audioCtx.createBiquadFilter();
-        highPass.type = 'highpass';
-        highPass.frequency.value = 80;
+      // Node F: Destination Stream for clean noise-canceled recording
+      const destination = audioCtx.createMediaStreamDestination();
+
+      // Connect DSP Filter Chain
+      if (highPassFilterEnabled && noiseGateEnabled) {
         source.connect(highPass);
-        highPass.connect(analyser);
+        highPass.connect(lowPass);
+        lowPass.connect(notchFilter);
+        notchFilter.connect(compressor);
+        compressor.connect(analyser);
+        compressor.connect(destination);
       } else {
-        source.connect(analyser);
+        source.connect(compressor);
+        compressor.connect(analyser);
+        compressor.connect(destination);
       }
 
       // Start Volume Visualizer loop
       processAudioVolume();
 
-      // MediaRecorder for local playback / export
+      // Record from the clean, noise-filtered DSP destination stream!
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
         : 'audio/webm';
 
-      const recorder = new MediaRecorder(stream, { mimeType });
+      const recorder = new MediaRecorder(destination.stream, { 
+        mimeType,
+        audioBitsPerSecond: 128000
+      });
+      
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
 
@@ -129,7 +169,7 @@ export function useAudioRecorder() {
         setAudioBlob(audioBlob, audioUrl);
       };
 
-      recorder.start(1000); // 1-second chunks
+      recorder.start(1000); // 1-second clean chunks
       setRecordingState('recording');
 
       // Start duration timer

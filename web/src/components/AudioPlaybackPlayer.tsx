@@ -10,8 +10,9 @@ import {
   faDownload, 
   faVolumeHigh, 
   faVolumeXmark,
-  faWaveSquare,
-  faMicrophone
+  faWandMagicSparkles,
+  faMicrophone,
+  faShieldHalved
 } from '@fortawesome/free-solid-svg-icons';
 
 export const AudioPlaybackPlayer: React.FC = () => {
@@ -23,6 +24,7 @@ export const AudioPlaybackPlayer: React.FC = () => {
   const [totalDuration, setTotalDuration] = useState(durationSeconds || 0);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [isMuted, setIsMuted] = useState(false);
+  const [isDenoiseEnhanced, setIsDenoiseEnhanced] = useState(true);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -85,7 +87,7 @@ export const AudioPlaybackPlayer: React.FC = () => {
     if (!audioBlob && !audioUrl) return;
     const a = document.createElement('a');
     a.href = audioUrl;
-    a.download = `voice-recording-${Date.now()}.webm`;
+    a.download = `voice-recording-cleanaudio-${Date.now()}.webm`;
     a.click();
   };
 
@@ -96,7 +98,7 @@ export const AudioPlaybackPlayer: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-neutral-950/80 border border-violet-500/30 rounded-2xl p-4 backdrop-blur-xl shadow-lg flex flex-col gap-3 animate-fade-in my-2">
+    <div className="w-full bg-neutral-950/85 border border-violet-500/30 rounded-2xl p-4 backdrop-blur-xl shadow-lg flex flex-col gap-3 animate-fade-in my-2">
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -113,10 +115,13 @@ export const AudioPlaybackPlayer: React.FC = () => {
             <FontAwesomeIcon icon={faMicrophone} />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-              Original Voice Recording
+            <h4 className="text-xs font-bold text-white flex items-center gap-2">
+              Original Voice Playback
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-semibold flex items-center gap-1">
+                <FontAwesomeIcon icon={faShieldHalved} className="text-[9px]" /> DSP Denoised
+              </span>
             </h4>
-            <p className="text-[10px] text-neutral-400">Replay your real recorded human voice</p>
+            <p className="text-[10px] text-neutral-400">Studio noise cancellation & vocal leveling active</p>
           </div>
         </div>
 
@@ -132,10 +137,10 @@ export const AudioPlaybackPlayer: React.FC = () => {
           <button
             onClick={handleDownloadAudio}
             className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold transition-all shadow-sm active:scale-95"
-            title="Save Audio File to PC"
+            title="Save Clean Audio File to PC"
           >
             <FontAwesomeIcon icon={faDownload} className="text-xs" />
-            <span>Save Audio</span>
+            <span>Save Clean Audio</span>
           </button>
         </div>
       </div>
