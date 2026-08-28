@@ -216,19 +216,61 @@ export const TranscriptionWorkspace: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const handleExportPDF = (text: string) => {
+  const handleExportPDF = (text: string, isExecutiveMoM: boolean = false) => {
     const doc = new jsPDF();
+    
+    // Header Banner
+    doc.setFillColor(15, 23, 42); // Dark slate
+    doc.rect(0, 0, 210, 24, 'F');
     doc.setFontSize(16);
-    doc.text('VoiceFlow AI Transcript', 14, 20);
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
-    doc.line(14, 32, 196, 32);
-    doc.setFontSize(11);
-    doc.setTextColor(20);
-    const splitText = doc.splitTextToSize(text, 180);
-    doc.text(splitText, 14, 40);
-    doc.save(`transcript-${Date.now()}.pdf`);
+    doc.setTextColor(255, 255, 255);
+    doc.text(isExecutiveMoM ? 'OFFICIAL EXECUTIVE MEETING MINUTES (MoM)' : 'VOICEFLOW AI TRANSCRIPT & SUMMARY', 14, 16);
+
+    doc.setFontSize(9);
+    doc.setTextColor(148, 163, 184);
+    doc.text(`Generated: ${new Date().toLocaleString()} | Language: ${selectedLanguage}`, 14, 32);
+
+    if (isExecutiveMoM) {
+      doc.setFontSize(11);
+      doc.setTextColor(30, 41, 59);
+      doc.text('1. MEETING OBJECTIVE & CONTEXT', 14, 42);
+      doc.setDrawColor(203, 213, 225);
+      doc.line(14, 45, 196, 45);
+
+      doc.setFontSize(10);
+      doc.setTextColor(51, 65, 85);
+      const splitObj = doc.splitTextToSize(summary || text.slice(0, 300), 180);
+      doc.text(splitObj, 14, 52);
+
+      const nextY = 52 + splitObj.length * 6 + 8;
+      doc.setFontSize(11);
+      doc.setTextColor(30, 41, 59);
+      doc.text('2. DETAILED DISCUSSION & TRANSCRIPTION', 14, nextY);
+      doc.line(14, nextY + 3, 196, nextY + 3);
+
+      doc.setFontSize(9.5);
+      doc.setTextColor(71, 85, 105);
+      const splitBody = doc.splitTextToSize(text, 180);
+      doc.text(splitBody, 14, nextY + 10);
+
+      // Signatures at footer
+      const sigY = Math.min(nextY + 10 + splitBody.length * 5 + 16, 260);
+      doc.setDrawColor(148, 163, 184);
+      doc.line(14, sigY, 80, sigY);
+      doc.line(120, sigY, 186, sigY);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Prepared By: Host / Speaker 1', 14, sigY + 5);
+      doc.text('Approved By: Executive / Client', 120, sigY + 5);
+
+      doc.save(`executive-meeting-minutes-${Date.now()}.pdf`);
+    } else {
+      doc.setFontSize(10);
+      doc.setTextColor(30, 41, 59);
+      const splitText = doc.splitTextToSize(text, 180);
+      doc.text(splitText, 14, 40);
+      doc.save(`transcript-${Date.now()}.pdf`);
+    }
   };
 
   const handleExportSRT = (text: string) => {
@@ -489,13 +531,22 @@ export const TranscriptionWorkspace: React.FC = () => {
             .TXT
           </button>
           <button
-            onClick={() => handleExportPDF(currentActiveText)}
+            onClick={() => handleExportPDF(currentActiveText, false)}
             disabled={!currentActiveText.trim()}
             className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 text-[11px] font-medium border border-white/5 transition-all"
             title="Download Formatted PDF"
           >
             <FontAwesomeIcon icon={faFilePdf} className="text-[10px] text-rose-400" />
             .PDF
+          </button>
+          <button
+            onClick={() => handleExportPDF(currentActiveText, true)}
+            disabled={!currentActiveText.trim()}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 hover:text-cyan-300 text-[11px] font-semibold border border-white/5 transition-all"
+            title="Download Official Corporate Meeting Minutes (MoM) PDF"
+          >
+            <FontAwesomeIcon icon={faBriefcase} className="text-[10px] text-cyan-400" />
+            MoM PDF
           </button>
           <button
             onClick={() => handleExportSRT(currentActiveText)}

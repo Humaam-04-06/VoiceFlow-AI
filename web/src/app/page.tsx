@@ -9,6 +9,7 @@ import { HistoryDrawer } from '@/components/HistoryDrawer';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { AudioFileUploadModal } from '@/components/AudioFileUploadModal';
 import { TheaterSubtitleModal } from '@/components/TheaterSubtitleModal';
+import { BabelTranslatorModal } from '@/components/BabelTranslatorModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faBolt, 
@@ -87,6 +88,7 @@ export default function Home() {
       <ChatDrawer />
       <AudioFileUploadModal />
       <TheaterSubtitleModal />
+      <BabelTranslatorModal />
 
       {/* Footer */}
       <footer className="w-full border-t border-white/10 py-6 px-4 text-center text-xs text-neutral-500 bg-neutral-950/80 mt-12">

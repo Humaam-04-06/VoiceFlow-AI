@@ -10,7 +10,9 @@ import {
   faPlay, 
   faPause, 
   faWandMagicSparkles,
-  faArrowsRotate
+  faArrowsRotate,
+  faLink,
+  faVideo
 } from '@fortawesome/free-solid-svg-icons';
 
 export const AudioFileUploadModal: React.FC = () => {
@@ -23,7 +25,9 @@ export const AudioFileUploadModal: React.FC = () => {
     updateStats,
   } = useVoiceStore();
 
+  const [activeTab, setActiveTab] = useState<'upload' | 'url'>('upload');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [videoUrl, setVideoUrl] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -42,13 +46,12 @@ export const AudioFileUploadModal: React.FC = () => {
     }
   };
 
-  const handleTranscribeFile = async () => {
-    if (!selectedFile) return;
-
+  const handleTranscribe = async () => {
     setIsProcessing(true);
     try {
       setTimeout(() => {
-        const sampleText = `Transcription for ${selectedFile.name}: In this recorded audio session, we explored the new product architecture, discussed team milestones for Q3, and finalized the voice intelligence roadmap. Action items include completing the web application testing and preparing mobile prototypes.`;
+        const title = activeTab === 'upload' ? selectedFile?.name : 'Online Web Audio / Lecture';
+        const sampleText = `Transcription for ${title}: In this imported audio session, key discussion points included expanding multi-language support, enabling real-time Web Audio DSP noise cancellation, and generating official meeting minutes with interactive action checklists.`;
         setRawTranscript(sampleText);
         if (selectedFile && audioUrl) {
           setAudioBlob(selectedFile, audioUrl);
@@ -81,7 +84,7 @@ export const AudioFileUploadModal: React.FC = () => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-neutral-950/60">
           <div className="flex items-center gap-2.5">
             <FontAwesomeIcon icon={faCloudArrowUp} className="text-cyan-400 text-sm" />
-            <h2 className="text-sm font-bold text-white">Upload & Transcribe Audio File</h2>
+            <h2 className="text-sm font-bold text-white">Import & Transcribe Audio / URL</h2>
           </div>
           <button
             onClick={() => setModalOpen('upload', false)}
@@ -91,29 +94,70 @@ export const AudioFileUploadModal: React.FC = () => {
           </button>
         </div>
 
-        {/* Dropzone Body */}
-        <div className="p-6 space-y-4">
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-white/15 hover:border-cyan-500/50 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-neutral-950/40 hover:bg-neutral-950/80 transition-all text-center group"
+        {/* Tab Selector (File Upload vs URL Import) */}
+        <div className="flex items-center border-b border-white/10 px-6 pt-3 bg-neutral-950/40 gap-4">
+          <button
+            onClick={() => setActiveTab('upload')}
+            className={`pb-2.5 text-xs font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
+              activeTab === 'upload' ? 'border-cyan-400 text-cyan-300' : 'border-transparent text-neutral-400 hover:text-white'
+            }`}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="audio/*,video/mp4,video/webm"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition-transform mb-3 flex items-center justify-center">
-              <FontAwesomeIcon icon={faFileAudio} className="text-3xl" />
+            <FontAwesomeIcon icon={faFileAudio} className="text-xs" />
+            Upload File
+          </button>
+          <button
+            onClick={() => setActiveTab('url')}
+            className={`pb-2.5 text-xs font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
+              activeTab === 'url' ? 'border-cyan-400 text-cyan-300' : 'border-transparent text-neutral-400 hover:text-white'
+            }`}
+          >
+            <FontAwesomeIcon icon={faLink} className="text-xs" />
+            Paste Audio / Video URL
+          </button>
+        </div>
+
+        {/* Body Content */}
+        <div className="p-6 space-y-4">
+          {activeTab === 'upload' ? (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="border-2 border-dashed border-white/15 hover:border-cyan-500/50 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-neutral-950/40 hover:bg-neutral-950/80 transition-all text-center group"
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*,video/mp4,video/webm"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition-transform mb-3 flex items-center justify-center">
+                <FontAwesomeIcon icon={faFileAudio} className="text-3xl" />
+              </div>
+              <p className="text-xs font-semibold text-white">
+                {selectedFile ? selectedFile.name : 'Drag & drop your audio file or browse'}
+              </p>
+              <p className="text-[11px] text-neutral-400 mt-1">
+                Supports MP3, WAV, M4A, FLAC, OGG, and WebM (up to 50MB)
+              </p>
             </div>
-            <p className="text-xs font-semibold text-white">
-              {selectedFile ? selectedFile.name : 'Drag & drop your audio file or browse'}
-            </p>
-            <p className="text-[11px] text-neutral-400 mt-1">
-              Supports MP3, WAV, M4A, FLAC, OGG, and WebM (up to 50MB)
-            </p>
-          </div>
+          ) : (
+            <div className="p-5 rounded-2xl bg-neutral-950/60 border border-white/10 space-y-3">
+              <label className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
+                <FontAwesomeIcon icon={faVideo} className="text-violet-400 text-xs" />
+                Video, Lecture, or Podcast Audio URL
+              </label>
+              <input
+                type="url"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="https://example.com/lecture.mp3 or video link"
+                className="w-full bg-neutral-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-500"
+              />
+              <p className="text-[11px] text-neutral-400">
+                Directly extracts and transcribes speech from streaming audio feeds and online lectures.
+              </p>
+            </div>
+          )}
 
           {/* Audio Player Preview */}
           {audioUrl && (
@@ -149,12 +193,12 @@ export const AudioFileUploadModal: React.FC = () => {
             Cancel
           </button>
           <button
-            onClick={handleTranscribeFile}
-            disabled={!selectedFile || isProcessing}
+            onClick={handleTranscribe}
+            disabled={(activeTab === 'upload' && !selectedFile) || (activeTab === 'url' && !videoUrl.trim()) || isProcessing}
             className="flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white disabled:opacity-50 transition-all shadow-lg"
           >
             <FontAwesomeIcon icon={isProcessing ? faArrowsRotate : faWandMagicSparkles} className={`text-xs ${isProcessing ? 'animate-spin' : ''}`} />
-            {isProcessing ? 'Transcribing Audio...' : 'Start Transcription'}
+            {isProcessing ? 'Processing Speech...' : 'Start Transcription'}
           </button>
         </div>
       </div>

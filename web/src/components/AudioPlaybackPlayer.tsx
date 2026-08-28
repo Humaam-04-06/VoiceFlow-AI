@@ -9,14 +9,17 @@ import {
   faRotateLeft, 
   faDownload, 
   faVolumeHigh, 
-  faVolumeXmark,
-  faWandMagicSparkles,
+  faVolumeXmark, 
+  faSliders,
   faMicrophone,
-  faShieldHalved
+  faShieldHalved,
+  faPodcast,
+  faTowerBroadcast,
+  faWandMagicSparkles
 } from '@fortawesome/free-solid-svg-icons';
 
 export const AudioPlaybackPlayer: React.FC = () => {
-  const { audioUrl, audioBlob, durationSeconds } = useVoiceStore();
+  const { audioUrl, audioBlob, durationSeconds, vocalPreset, setVocalPreset } = useVoiceStore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -24,7 +27,6 @@ export const AudioPlaybackPlayer: React.FC = () => {
   const [totalDuration, setTotalDuration] = useState(durationSeconds || 0);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [isMuted, setIsMuted] = useState(false);
-  const [isDenoiseEnhanced, setIsDenoiseEnhanced] = useState(true);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -87,7 +89,7 @@ export const AudioPlaybackPlayer: React.FC = () => {
     if (!audioBlob && !audioUrl) return;
     const a = document.createElement('a');
     a.href = audioUrl;
-    a.download = `voice-recording-cleanaudio-${Date.now()}.webm`;
+    a.download = `voice-recording-${vocalPreset}-${Date.now()}.webm`;
     a.click();
   };
 
@@ -109,7 +111,7 @@ export const AudioPlaybackPlayer: React.FC = () => {
       />
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        {/* Title */}
+        {/* Title & DSP Indicator */}
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-violet-600/30 text-violet-300 flex items-center justify-center text-xs">
             <FontAwesomeIcon icon={faMicrophone} />
@@ -121,12 +123,55 @@ export const AudioPlaybackPlayer: React.FC = () => {
                 <FontAwesomeIcon icon={faShieldHalved} className="text-[9px]" /> DSP Denoised
               </span>
             </h4>
-            <p className="text-[10px] text-neutral-400">Studio noise cancellation & vocal leveling active</p>
+            <p className="text-[10px] text-neutral-400">Mastered vocal playback with studio EQ presets</p>
           </div>
         </div>
 
-        {/* Speed & Download Actions */}
-        <div className="flex items-center gap-1.5">
+        {/* Vocal Mastering Preset Selector & Save Button */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {/* EQ Presets */}
+          <div className="flex items-center bg-neutral-900/80 border border-white/10 rounded-xl p-0.5 text-xs">
+            <button
+              onClick={() => setVocalPreset('clean')}
+              className={`px-2 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                vocalPreset === 'clean' ? 'bg-violet-600 text-white shadow-sm' : 'text-neutral-400 hover:text-white'
+              }`}
+              title="Clean Studio DSP"
+            >
+              Clean
+            </button>
+            <button
+              onClick={() => setVocalPreset('podcast')}
+              className={`px-2 py-1 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1 ${
+                vocalPreset === 'podcast' ? 'bg-violet-600 text-white shadow-sm' : 'text-neutral-400 hover:text-white'
+              }`}
+              title="Deep Podcast Warmth (Bass Boost)"
+            >
+              <FontAwesomeIcon icon={faPodcast} className="text-[9px]" />
+              Podcast
+            </button>
+            <button
+              onClick={() => setVocalPreset('radio')}
+              className={`px-2 py-1 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1 ${
+                vocalPreset === 'radio' ? 'bg-violet-600 text-white shadow-sm' : 'text-neutral-400 hover:text-white'
+              }`}
+              title="Broadcast Radio Host Air"
+            >
+              <FontAwesomeIcon icon={faTowerBroadcast} className="text-[9px]" />
+              Radio
+            </button>
+            <button
+              onClick={() => setVocalPreset('crisp')}
+              className={`px-2 py-1 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1 ${
+                vocalPreset === 'crisp' ? 'bg-violet-600 text-white shadow-sm' : 'text-neutral-400 hover:text-white'
+              }`}
+              title="Crisp Articulation (High Speech Clarity)"
+            >
+              <FontAwesomeIcon icon={faWandMagicSparkles} className="text-[9px]" />
+              Crisp
+            </button>
+          </div>
+
           <button
             onClick={cycleSpeed}
             className="px-2.5 py-1 rounded-lg bg-neutral-900 border border-white/10 text-neutral-300 hover:text-white font-mono text-[11px] font-semibold transition-all"
@@ -140,7 +185,7 @@ export const AudioPlaybackPlayer: React.FC = () => {
             title="Save Clean Audio File to PC"
           >
             <FontAwesomeIcon icon={faDownload} className="text-xs" />
-            <span>Save Clean Audio</span>
+            <span>Save Audio</span>
           </button>
         </div>
       </div>

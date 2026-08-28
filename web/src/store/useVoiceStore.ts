@@ -37,6 +37,7 @@ interface VoiceStoreState {
   audioPlaybackRate: number;
   audioCurrentTime: number;
   audioDuration: number;
+  vocalPreset: 'clean' | 'podcast' | 'radio' | 'crisp';
 
   // Transcript & Content State
   liveInterimText: string;
@@ -86,6 +87,7 @@ interface VoiceStoreState {
   isUploadModalOpen: boolean;
   isChatDrawerOpen: boolean;
   isTheaterSubtitleOpen: boolean;
+  isBabelModalOpen: boolean;
 
   // History & Chat
   history: SessionHistoryItem[];
@@ -100,6 +102,7 @@ interface VoiceStoreState {
   setAudioSourceType: (type: AudioSourceType) => void;
 
   setAudioPlaybackState: (state: { isPlaying?: boolean; rate?: number; currentTime?: number; duration?: number }) => void;
+  setVocalPreset: (preset: 'clean' | 'podcast' | 'radio' | 'crisp') => void;
   
   setLiveInterimText: (text: string) => void;
   addTranscriptSegment: (segment: TranscriptSegment) => void;
@@ -131,7 +134,7 @@ interface VoiceStoreState {
   setIsAiProcessing: (processing: boolean, msg?: string) => void;
   setErrorMessage: (err: string | null) => void;
 
-  setModalOpen: (modal: 'settings' | 'history' | 'upload' | 'chat' | 'theater', isOpen: boolean) => void;
+  setModalOpen: (modal: 'settings' | 'history' | 'upload' | 'chat' | 'theater' | 'babel', isOpen: boolean) => void;
   
   saveCurrentSessionToHistory: (title?: string) => void;
   loadSessionFromHistory: (session: SessionHistoryItem) => void;
@@ -162,6 +165,7 @@ export const useVoiceStore = create<VoiceStoreState>()(
       audioPlaybackRate: 1.0,
       audioCurrentTime: 0,
       audioDuration: 0,
+      vocalPreset: 'clean',
 
       // Transcript Initial
       liveInterimText: '',
@@ -225,6 +229,7 @@ export const useVoiceStore = create<VoiceStoreState>()(
       isUploadModalOpen: false,
       isChatDrawerOpen: false,
       isTheaterSubtitleOpen: false,
+      isBabelModalOpen: false,
 
       // History & Chat
       history: [],
@@ -248,6 +253,8 @@ export const useVoiceStore = create<VoiceStoreState>()(
           audioCurrentTime: playback.currentTime ?? state.audioCurrentTime,
           audioDuration: playback.duration ?? state.audioDuration,
         })),
+
+      setVocalPreset: (vocalPreset) => set({ vocalPreset }),
 
       setLiveInterimText: (liveInterimText) => set({ liveInterimText }),
       addTranscriptSegment: (segment) => 
@@ -461,6 +468,7 @@ export const useVoiceStore = create<VoiceStoreState>()(
         if (modal === 'upload') set({ isUploadModalOpen: isOpen });
         if (modal === 'chat') set({ isChatDrawerOpen: isOpen });
         if (modal === 'theater') set({ isTheaterSubtitleOpen: isOpen });
+        if (modal === 'babel') set({ isBabelModalOpen: isOpen });
       },
 
       saveCurrentSessionToHistory: (customTitle) => {
