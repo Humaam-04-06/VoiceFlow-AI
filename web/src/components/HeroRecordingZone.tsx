@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useVoiceStore } from '@/store/useVoiceStore';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -21,7 +21,9 @@ import {
   faWaveSquare,
   faHeadphones,
   faCirclePause,
-  faCirclePlay
+  faCircleExclamation,
+  faWandMagicSparkles,
+  faXmark
 } from '@fortawesome/free-solid-svg-icons';
 
 export const HeroRecordingZone: React.FC = () => {
@@ -30,8 +32,13 @@ export const HeroRecordingZone: React.FC = () => {
     durationSeconds,
     isSpeakingDetected,
     selectedLanguage,
+    rawTranscript,
+    errorMessage,
+    setErrorMessage,
+    setRawTranscript,
     resetAll,
     setModalOpen,
+    updateStats,
   } = useVoiceStore();
 
   const {
@@ -75,6 +82,14 @@ export const HeroRecordingZone: React.FC = () => {
     resetAll();
   };
 
+  // One-click demo speech loader to test all features instantly
+  const handleLoadDemoSpeech = () => {
+    const demo =
+      "Hello everyone, today we are discussing the architecture for our cross-platform voice to text application. We um need to make sure that we support both in-browser speech recognition and 100% offline Whisper inference. Like, the action items are: first, finalize the Next.js web application with Kokoro neural TTS, and second, prepare the React Native mobile codebase with Apple CoreML and Android NPU acceleration. Please send the final review by Friday.";
+    setRawTranscript(demo);
+    updateStats();
+  };
+
   const formatTimer = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -83,6 +98,22 @@ export const HeroRecordingZone: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center w-full max-w-4xl mx-auto gap-5">
+      {/* Error / Browser Notice Banner */}
+      {errorMessage && (
+        <div className="w-full p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-start justify-between gap-3 animate-fade-in shadow-md">
+          <div className="flex items-start gap-2.5">
+            <FontAwesomeIcon icon={faCircleExclamation} className="text-amber-400 text-sm mt-0.5 flex-shrink-0" />
+            <p className="leading-relaxed">{errorMessage}</p>
+          </div>
+          <button
+            onClick={() => setErrorMessage(null)}
+            className="text-amber-400 hover:text-white p-1"
+          >
+            <FontAwesomeIcon icon={faXmark} className="text-xs" />
+          </button>
+        </div>
+      )}
+
       {/* Top Floating Action Bar */}
       <div className="flex flex-wrap items-center justify-between w-full px-2 gap-3">
         <div className="flex items-center gap-2">
@@ -215,21 +246,33 @@ export const HeroRecordingZone: React.FC = () => {
         )}
       </div>
 
-      {/* Helpful shortcut hint */}
-      <p className="text-xs text-neutral-400 text-center">
-        {recordingState === 'idle' ? (
-          <>
-            Click <strong className="text-neutral-200">Start</strong> to speak in{' '}
-            <span className="text-violet-400 font-medium">{selectedLanguage}</span>. Speech transcribes live in real-time.
-          </>
-        ) : recordingState === 'recording' ? (
-          <>
-            Speaking now... Click the stop button when finished.
-          </>
-        ) : (
-          <>Recording paused. Click play to resume.</>
+      {/* Helpful hint and demo trigger */}
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-xs text-neutral-400 text-center">
+          {recordingState === 'idle' ? (
+            <>
+              Click <strong className="text-neutral-200">Start</strong> to speak in{' '}
+              <span className="text-violet-400 font-medium">{selectedLanguage}</span>. Speech transcribes live in real-time.
+            </>
+          ) : recordingState === 'recording' ? (
+            <>
+              Speaking now... Click the stop button when finished.
+            </>
+          ) : (
+            <>Recording paused. Click play to resume.</>
+          )}
+        </p>
+
+        {!rawTranscript && recordingState === 'idle' && (
+          <button
+            onClick={handleLoadDemoSpeech}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-neutral-900/90 hover:bg-neutral-800 border border-white/10 text-violet-300 hover:text-violet-200 transition-all shadow-sm"
+          >
+            <FontAwesomeIcon icon={faWandMagicSparkles} className="text-[10px] text-violet-400" />
+            Try 1-Click Sample Speech Demo
+          </button>
         )}
-      </p>
+      </div>
 
       {/* Live Speech Coach Metrics */}
       <SpeechCoachWidget />

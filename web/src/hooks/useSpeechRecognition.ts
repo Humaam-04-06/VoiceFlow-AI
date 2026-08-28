@@ -59,13 +59,17 @@ export function useSpeechRecognition() {
     const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionClass) {
-      setErrorMessage('Speech Recognition API is not supported in this browser. Please use Chrome, Edge, Safari, or connect a cloud Whisper API key.');
+      setErrorMessage(
+        'Speech Recognition API is not supported in this browser. Please use Chrome, Edge, or connect a Whisper API key in Settings.'
+      );
       return;
     }
 
     try {
       if (recognitionRef.current) {
-        recognitionRef.current.abort();
+        try {
+          recognitionRef.current.abort();
+        } catch {}
       }
 
       const recognition = new SpeechRecognitionClass();
@@ -109,23 +113,37 @@ export function useSpeechRecognition() {
 
       recognition.onerror = (event: SpeechRecognitionErrorEventLike) => {
         if (event.error === 'no-speech') {
-          // Expected during silence, ignore
-          return;
+          return; // Expected during silence
         }
         if (event.error === 'aborted') {
           return;
         }
-        console.warn('Speech recognition warning:', event.error);
+
+        console.warn('Speech recognition status/error:', event.error);
+
+        if (event.error === 'network' || event.error === 'service-not-allowed') {
+          // Brave Browser or privacy block detected
+          const isBrave = Boolean((navigator as any).brave);
+          if (isBrave) {
+            setErrorMessage(
+              '🦁 Brave Browser Notice: Brave blocks Google speech servers by default. Go to brave://settings/privacy -> Enable "Google Services for Speech Recognition" or use Chrome / Edge / Whisper.'
+            );
+          } else {
+            setErrorMessage(
+              'Speech server notice: Connection was interrupted. Whisper audio fallback is available.'
+            );
+          }
+        } else if (event.error === 'not-allowed') {
+          setErrorMessage('Microphone access was denied. Please click the lock/shield icon in the browser address bar and allow Microphone.');
+        }
       };
 
       recognition.onend = () => {
-        // Auto-restart if still in recording state and not manually stopped
+        // Auto-restart if still recording and not manually stopped
         if (!isManuallyStoppedRef.current && useVoiceStore.getState().recordingState === 'recording') {
           try {
             recognition.start();
-          } catch {
-            // Ignore if already active
-          }
+          } catch {}
         }
       };
 
@@ -139,7 +157,9 @@ export function useSpeechRecognition() {
   const stopRecognition = useCallback(() => {
     isManuallyStoppedRef.current = true;
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch {}
       recognitionRef.current = null;
     }
     setLiveInterimText('');
@@ -149,7 +169,9 @@ export function useSpeechRecognition() {
   // Restart recognition if language changes while actively recording
   useEffect(() => {
     if (recordingState === 'recording' && recognitionRef.current) {
-      recognitionRef.current.abort();
+      try {
+        recognitionRef.current.abort();
+      } catch {}
       startRecognition();
     }
   }, [selectedLanguage, recordingState, startRecognition]);
