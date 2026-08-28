@@ -37,12 +37,14 @@ export async function dispatchAITask(options: AIRequestOptions): Promise<AIRespo
     else if (apiKeys?.claudeKey?.trim()) effectiveProvider = 'claude';
   }
 
-  // 1. If Free Local mode or no key provided for selected provider, use Local NLP Engine
-  if (effectiveProvider === 'free-local' || isKeyMissing(effectiveProvider, apiKeys)) {
+  const activeKey = getActiveKey(effectiveProvider, apiKeys);
+
+  // 1. If Free Local mode or no key provided for selected provider, use Local Engine
+  if (effectiveProvider === 'free-local' || !activeKey) {
     return await executeLocalAction(action, text, targetLanguage, repurposeFormat, userPrompt);
   }
 
-  // 2. Call Cloud AI API (Gemini 2.5 / 2.0 Flash, OpenAI GPT-4o, Anthropic Claude 3.7 Sonnet)
+  // 2. Call Server-Side AI API Route (/api/ai) — eliminates browser CORS & 403 errors
   try {
     const prompt = buildSystemPrompt(action, targetLanguage, repurposeFormat, userPrompt);
     const userMessage = action === 'chat' 
@@ -51,47 +53,56 @@ export async function dispatchAITask(options: AIRequestOptions): Promise<AIRespo
       ? `Translate the following text into ${targetLanguage}:\n\n"${text}"`
       : `Please process the following transcript:\n\n"""\n${text}\n"""`;
 
-    let responseText = '';
+    const apiRes = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: effectiveProvider,
+        apiKey: activeKey,
+        action,
+        systemPrompt: prompt,
+        userMessage,
+        targetLanguage,
+      }),
+    });
 
-    if (effectiveProvider === 'gemini') {
-      responseText = await callGeminiAPI(apiKeys.geminiKey!, prompt, userMessage);
-    } else if (effectiveProvider === 'openai') {
-      responseText = await callOpenAIAPI(apiKeys.openaiKey!, prompt, userMessage);
-    } else if (effectiveProvider === 'claude') {
-      responseText = await callClaudeAPI(apiKeys.claudeKey!, prompt, userMessage);
-    }
+    const data = await apiRes.json();
 
-    if (action === 'summarize') {
-      const parsed = parseSummaryAndActionItems(responseText);
+    if (data.success && data.result) {
+      if (action === 'summarize') {
+        const parsed = parseSummaryAndActionItems(data.result);
+        return {
+          success: true,
+          result: parsed.summary,
+          summary: parsed.summary,
+          actionItems: parsed.actionItems,
+          providerUsed: effectiveProvider,
+        };
+      }
+
       return {
         success: true,
-        result: parsed.summary,
-        summary: parsed.summary,
-        actionItems: parsed.actionItems,
+        result: data.result.trim(),
         providerUsed: effectiveProvider,
       };
+    } else {
+      throw new Error(data.error || 'Server AI generation error');
     }
-
-    return {
-      success: true,
-      result: responseText.trim(),
-      providerUsed: effectiveProvider,
-    };
   } catch (error: unknown) {
-    console.warn(`[AI Dispatcher] Cloud provider ${effectiveProvider} failed, falling back to Local NLP:`, error);
+    console.warn(`[AI Dispatcher] Cloud provider ${effectiveProvider} failed, using free engine:`, error);
     const fallback = await executeLocalAction(action, text, targetLanguage, repurposeFormat, userPrompt);
     return {
       ...fallback,
-      error: error instanceof Error ? error.message : 'API call failed. Used local engine.',
+      error: error instanceof Error ? error.message : 'API call failed. Used fallback engine.',
     };
   }
 }
 
-function isKeyMissing(provider: AIProvider, keys: APIKeysConfig): boolean {
-  if (provider === 'gemini') return !keys?.geminiKey?.trim();
-  if (provider === 'openai') return !keys?.openaiKey?.trim();
-  if (provider === 'claude') return !keys?.claudeKey?.trim();
-  return true;
+function getActiveKey(provider: AIProvider, keys: APIKeysConfig): string | undefined {
+  if (provider === 'gemini') return keys?.geminiKey?.trim();
+  if (provider === 'openai') return keys?.openaiKey?.trim();
+  if (provider === 'claude') return keys?.claudeKey?.trim();
+  return undefined;
 }
 
 async function executeLocalAction(
@@ -187,7 +198,7 @@ function buildSystemPrompt(
     case 'translate':
       return `You are a professional multilingual translator. Translate the speech text accurately and fluently into ${targetLanguage || 'Urdu'}.
 CRITICAL REQUIREMENTS:
-- Output ONLY the translation in the native script of ${targetLanguage} (e.g. for Urdu use Urdu script اردو, for Arabic use العربية, for Hindi use हिंदी, for Spanish use español).
+- Output ONLY the translation in the native script of ${targetLanguage} (e.g. for Urdu use Urdu script اردو, for Arabic use العربية, for Hindi use हिंदी, for Spanish use español, for Chinese use 中文).
 - Do NOT include notes, comments, pronunciation guides, or quotes. Output ONLY the pure translated sentence.`;
     case 'mindmap':
       return 'You are a visual thinker. Create a clean Mermaid.js mindmap diagram representing the core concepts, sub-themes, and ideas in the transcript. Output ONLY valid Mermaid mindmap code starting with "mindmap".';
@@ -198,124 +209,6 @@ CRITICAL REQUIREMENTS:
     default:
       return 'You are a helpful AI assistant.';
   }
-}
-
-// Latest Flagship Model Implementations with Multi-Tier Fallback
-
-async function callGeminiAPI(apiKey: string, systemPrompt: string, userMessage: string): Promise<string> {
-  const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
-  let lastError = '';
-
-  for (const model of models) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: `${systemPrompt}\n\n${userMessage}` }],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 2048,
-          },
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) return text.trim();
-      } else {
-        const err = await response.json().catch(() => ({}));
-        lastError = err?.error?.message || `Gemini API status ${response.status}`;
-      }
-    } catch (e: any) {
-      lastError = e?.message || 'Network error';
-    }
-  }
-
-  throw new Error(lastError || 'Gemini API failed');
-}
-
-async function callOpenAIAPI(apiKey: string, systemPrompt: string, userMessage: string): Promise<string> {
-  const models = ['gpt-4o', 'gpt-4o-mini'];
-  let lastError = '';
-
-  for (const model of models) {
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userMessage },
-          ],
-          temperature: 0.2,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const text = data.choices?.[0]?.message?.content;
-        if (text) return text.trim();
-      } else {
-        const err = await response.json().catch(() => ({}));
-        lastError = err?.error?.message || `OpenAI API status ${response.status}`;
-      }
-    } catch (e: any) {
-      lastError = e?.message || 'Network error';
-    }
-  }
-
-  throw new Error(lastError || 'OpenAI API failed');
-}
-
-async function callClaudeAPI(apiKey: string, systemPrompt: string, userMessage: string): Promise<string> {
-  const models = ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022'];
-  let lastError = '';
-
-  for (const model of models) {
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'dangerously-allow-browser': 'true',
-        },
-        body: JSON.stringify({
-          model,
-          max_tokens: 2048,
-          system: systemPrompt,
-          messages: [{ role: 'user', content: userMessage }],
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const text = data.content?.[0]?.text;
-        if (text) return text.trim();
-      } else {
-        const err = await response.json().catch(() => ({}));
-        lastError = err?.error?.message || `Claude API status ${response.status}`;
-      }
-    } catch (e: any) {
-      lastError = e?.message || 'Network error';
-    }
-  }
-
-  throw new Error(lastError || 'Claude API failed');
 }
 
 function parseSummaryAndActionItems(text: string): { summary: string; actionItems: string[] } {
