@@ -227,11 +227,16 @@ export const TranscriptionWorkspace: React.FC = () => {
     } else {
       if (!text.trim()) return;
       setIsSpeaking(true);
+      
+      const speakingLanguage = activeWorkspaceTab === 'polished' && translatedText
+        ? (targetTranslationLanguage || targetLang || selectedLanguage)
+        : selectedLanguage;
+
       speakText(
         {
           text,
           engine: ttsEngine,
-          language: selectedLanguage,
+          language: speakingLanguage,
           openaiKey: apiKeys.openaiKey,
         },
         () => setIsSpeaking(true),

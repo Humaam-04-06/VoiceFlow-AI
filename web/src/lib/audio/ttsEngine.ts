@@ -1,6 +1,6 @@
 export interface TTSOptions {
   text: string;
-  engine: 'kokoro' | 'edge-neural' | 'browser' | 'openai';
+  engine?: 'kokoro' | 'edge-neural' | 'browser' | 'openai';
   language?: string;
   voiceName?: string;
   rate?: number; // 0.5 to 2.0
@@ -17,7 +17,7 @@ export async function speakText(
   onEnd?: () => void, 
   onError?: (err: string) => void
 ): Promise<void> {
-  const { text, engine, language = 'en-US', rate = 1.0, pitch = 1.0, openaiKey } = options;
+  const { text, engine = 'browser', language = 'en-US', rate = 1.0, pitch = 1.0, openaiKey } = options;
 
   if (!text || !text.trim()) {
     onError?.('No text provided to speak.');
@@ -55,27 +55,74 @@ export async function speakText(
       return;
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      console.warn('OpenAI TTS failed, falling back to Browser Neural Synthesis:', errorMsg);
+      console.warn('OpenAI TTS failed, falling back to Neural Synthesis:', errorMsg);
     }
   }
 
-  // 2. High-Performance Browser Speech Synthesis (100% Free, Zero latency)
+  // 2. High-Fidelity Multilingual Neural TTS Engine (Supports Urdu, Hindi, Arabic, Spanish, French, etc.)
+  try {
+    const langCode = language.split('-')[0].toLowerCase();
+    const cleanText = text.replace(/\[Translated.*?\]:\s*/gi, '').trim();
+    const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(cleanText.slice(0, 450))}`;
+
+    onStart?.();
+    const audio = new Audio(ttsUrl);
+    audio.playbackRate = Math.max(0.75, Math.min(rate, 1.5));
+    activeAudioElement = audio;
+
+    let fallbackTriggered = false;
+
+    audio.onended = () => {
+      onEnd?.();
+      activeAudioElement = null;
+    };
+
+    audio.onerror = () => {
+      if (!fallbackTriggered) {
+        fallbackTriggered = true;
+        speakViaBrowserSynthesis(cleanText, language, rate, pitch, onStart, onEnd, onError);
+      }
+    };
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        if (!fallbackTriggered) {
+          fallbackTriggered = true;
+          speakViaBrowserSynthesis(cleanText, language, rate, pitch, onStart, onEnd, onError);
+        }
+      });
+    }
+    return;
+  } catch (err) {
+    console.warn('Neural TTS stream failed, using Web Speech API fallback:', err);
+    speakViaBrowserSynthesis(text, language, rate, pitch, onStart, onEnd, onError);
+  }
+}
+
+function speakViaBrowserSynthesis(
+  text: string,
+  language: string,
+  rate: number,
+  pitch: number,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: string) => void
+) {
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     try {
+      window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = Math.max(0.7, Math.min(rate, 1.8));
       utterance.pitch = Math.max(0.8, Math.min(pitch, 1.3));
       utterance.lang = language;
 
-      // Match natural voice if available
       const voices = window.speechSynthesis.getVoices();
-      const naturalVoice = voices.find(v => 
-        (v.lang.startsWith(language.split('-')[0]) || v.lang === language) && 
-        (v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Daniel'))
-      ) || voices.find(v => v.lang.startsWith(language.split('-')[0]));
-
-      if (naturalVoice) {
-        utterance.voice = naturalVoice;
+      const langPrefix = language.split('-')[0].toLowerCase();
+      
+      const exactVoice = voices.find(v => v.lang.toLowerCase() === language.toLowerCase() || v.lang.toLowerCase().startsWith(langPrefix));
+      if (exactVoice) {
+        utterance.voice = exactVoice;
       }
 
       utterance.onstart = () => onStart?.();
@@ -94,7 +141,7 @@ export async function speakText(
       onEnd?.();
     }
   } else {
-    onError?.('Speech synthesis not supported in this browser environment.');
+    onError?.('Speech synthesis not supported in this browser.');
     onEnd?.();
   }
 }

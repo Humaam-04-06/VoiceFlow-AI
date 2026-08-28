@@ -1,5 +1,6 @@
 import { AIProvider, APIKeysConfig, RepurposeFormat } from '@/types';
 import { cleanSpokenGrammarLocally, generateSmartSummaryLocally, generateMindmapMermaidLocally, repurposeContentLocally } from './localNlp';
+import { SUPPORTED_LANGUAGES } from '../constants/languages';
 
 export interface AIRequestOptions {
   action: 'grammar' | 'summarize' | 'translate' | 'repurpose' | 'mindmap' | 'chat';
@@ -28,9 +29,17 @@ export async function dispatchAITask(options: AIRequestOptions): Promise<AIRespo
     return { success: false, result: '', providerUsed: 'none', error: 'No transcript text provided.' };
   }
 
+  // Determine effective provider: if a key is provided, prefer that cloud provider
+  let effectiveProvider: AIProvider = provider;
+  if (effectiveProvider === 'free-local') {
+    if (apiKeys?.geminiKey?.trim()) effectiveProvider = 'gemini';
+    else if (apiKeys?.openaiKey?.trim()) effectiveProvider = 'openai';
+    else if (apiKeys?.claudeKey?.trim()) effectiveProvider = 'claude';
+  }
+
   // 1. If Free Local mode or no key provided for selected provider, use Local NLP Engine
-  if (provider === 'free-local' || isKeyMissing(provider, apiKeys)) {
-    return executeLocalAction(action, text, targetLanguage, repurposeFormat, userPrompt);
+  if (effectiveProvider === 'free-local' || isKeyMissing(effectiveProvider, apiKeys)) {
+    return await executeLocalAction(action, text, targetLanguage, repurposeFormat, userPrompt);
   }
 
   // 2. Call Cloud AI API (Gemini 2.5 / 2.0 Flash, OpenAI GPT-4o, Anthropic Claude 3.7 Sonnet)
@@ -38,15 +47,17 @@ export async function dispatchAITask(options: AIRequestOptions): Promise<AIRespo
     const prompt = buildSystemPrompt(action, targetLanguage, repurposeFormat, userPrompt);
     const userMessage = action === 'chat' 
       ? `Transcript:\n"${text}"\n\nUser Question: ${userPrompt}`
+      : action === 'translate'
+      ? `Translate the following text into ${targetLanguage}:\n\n"${text}"`
       : `Please process the following transcript:\n\n"""\n${text}\n"""`;
 
     let responseText = '';
 
-    if (provider === 'gemini') {
+    if (effectiveProvider === 'gemini') {
       responseText = await callGeminiAPI(apiKeys.geminiKey!, prompt, userMessage);
-    } else if (provider === 'openai') {
+    } else if (effectiveProvider === 'openai') {
       responseText = await callOpenAIAPI(apiKeys.openaiKey!, prompt, userMessage);
-    } else if (provider === 'claude') {
+    } else if (effectiveProvider === 'claude') {
       responseText = await callClaudeAPI(apiKeys.claudeKey!, prompt, userMessage);
     }
 
@@ -57,18 +68,18 @@ export async function dispatchAITask(options: AIRequestOptions): Promise<AIRespo
         result: parsed.summary,
         summary: parsed.summary,
         actionItems: parsed.actionItems,
-        providerUsed: provider,
+        providerUsed: effectiveProvider,
       };
     }
 
     return {
       success: true,
-      result: responseText,
-      providerUsed: provider,
+      result: responseText.trim(),
+      providerUsed: effectiveProvider,
     };
   } catch (error: unknown) {
-    console.warn(`[AI Dispatcher] Cloud provider ${provider} failed, falling back to Local NLP:`, error);
-    const fallback = executeLocalAction(action, text, targetLanguage, repurposeFormat, userPrompt);
+    console.warn(`[AI Dispatcher] Cloud provider ${effectiveProvider} failed, falling back to Local NLP:`, error);
+    const fallback = await executeLocalAction(action, text, targetLanguage, repurposeFormat, userPrompt);
     return {
       ...fallback,
       error: error instanceof Error ? error.message : 'API call failed. Used local engine.',
@@ -77,19 +88,19 @@ export async function dispatchAITask(options: AIRequestOptions): Promise<AIRespo
 }
 
 function isKeyMissing(provider: AIProvider, keys: APIKeysConfig): boolean {
-  if (provider === 'gemini') return !keys.geminiKey?.trim();
-  if (provider === 'openai') return !keys.openaiKey?.trim();
-  if (provider === 'claude') return !keys.claudeKey?.trim();
+  if (provider === 'gemini') return !keys?.geminiKey?.trim();
+  if (provider === 'openai') return !keys?.openaiKey?.trim();
+  if (provider === 'claude') return !keys?.claudeKey?.trim();
   return true;
 }
 
-function executeLocalAction(
+async function executeLocalAction(
   action: string,
   text: string,
   targetLanguage?: string,
   repurposeFormat?: RepurposeFormat,
   userPrompt?: string
-): AIResponse {
+): Promise<AIResponse> {
   switch (action) {
     case 'grammar':
       return {
@@ -107,12 +118,14 @@ function executeLocalAction(
         providerUsed: 'Free Local NLP Engine',
       };
     }
-    case 'translate':
+    case 'translate': {
+      const translated = await translateOnlineFree(text, targetLanguage || 'Urdu');
       return {
         success: true,
-        result: `[Translated to ${targetLanguage || 'Target'} via Local Engine]: ${text}`,
-        providerUsed: 'Free Local NLP Engine',
+        result: translated,
+        providerUsed: 'Free Multilingual Translation Engine',
       };
+    }
     case 'mindmap':
       return {
         success: true,
@@ -136,6 +149,30 @@ function executeLocalAction(
   }
 }
 
+// 100% Free Multilingual Online Translation Service Fallback (Outputs real native Urdu, Arabic, Hindi, Spanish, etc.)
+async function translateOnlineFree(text: string, targetLanguage: string): Promise<string> {
+  try {
+    const langObj = SUPPORTED_LANGUAGES.find(
+      l => l.name.toLowerCase() === targetLanguage.toLowerCase() || 
+           l.code.toLowerCase() === targetLanguage.toLowerCase() ||
+           l.nativeName.toLowerCase() === targetLanguage.toLowerCase()
+    );
+    const langCode = langObj ? langObj.code.split('-')[0].toLowerCase() : 'ur';
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${langCode}&dt=t&q=${encodeURIComponent(text)}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data?.[0])) {
+        const translated = data[0].map((item: any) => item[0]).filter(Boolean).join('');
+        if (translated && translated.trim()) return translated.trim();
+      }
+    }
+  } catch (e) {
+    console.warn('[Translate Free Fallback] Error:', e);
+  }
+  return text;
+}
+
 function buildSystemPrompt(
   action: string,
   targetLanguage?: string,
@@ -148,7 +185,10 @@ function buildSystemPrompt(
     case 'summarize':
       return 'You are an executive assistant. Analyze the transcript and provide:\n1. A concise 3-5 bullet executive summary\n2. A bulleted list of clear action items / tasks\nFormat clearly with "## Executive Summary" and "## Action Items".';
     case 'translate':
-      return `You are a professional multilingual translator. Translate the speech transcript accurately into ${targetLanguage || 'English'}, maintaining natural conversational tone, nuances, and proper punctuation. Output ONLY the translated text.`;
+      return `You are a professional multilingual translator. Translate the speech text accurately and fluently into ${targetLanguage || 'Urdu'}.
+CRITICAL REQUIREMENTS:
+- Output ONLY the translation in the native script of ${targetLanguage} (e.g. for Urdu use Urdu script اردو, for Arabic use العربية, for Hindi use हिंदी, for Spanish use español).
+- Do NOT include notes, comments, pronunciation guides, or quotes. Output ONLY the pure translated sentence.`;
     case 'mindmap':
       return 'You are a visual thinker. Create a clean Mermaid.js mindmap diagram representing the core concepts, sub-themes, and ideas in the transcript. Output ONLY valid Mermaid mindmap code starting with "mindmap".';
     case 'repurpose':
@@ -160,7 +200,7 @@ function buildSystemPrompt(
   }
 }
 
-// Latest Flagship Model Implementations with Graceful Fallbacks
+// Latest Flagship Model Implementations with Multi-Tier Fallback
 
 async function callGeminiAPI(apiKey: string, systemPrompt: string, userMessage: string): Promise<string> {
   const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
@@ -180,7 +220,7 @@ async function callGeminiAPI(apiKey: string, systemPrompt: string, userMessage: 
             },
           ],
           generationConfig: {
-            temperature: 0.3,
+            temperature: 0.2,
             maxOutputTokens: 2048,
           },
         }),
@@ -189,7 +229,7 @@ async function callGeminiAPI(apiKey: string, systemPrompt: string, userMessage: 
       if (response.ok) {
         const data = await response.json();
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) return text;
+        if (text) return text.trim();
       } else {
         const err = await response.json().catch(() => ({}));
         lastError = err?.error?.message || `Gemini API status ${response.status}`;
@@ -220,14 +260,14 @@ async function callOpenAIAPI(apiKey: string, systemPrompt: string, userMessage: 
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage },
           ],
-          temperature: 0.3,
+          temperature: 0.2,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
         const text = data.choices?.[0]?.message?.content;
-        if (text) return text;
+        if (text) return text.trim();
       } else {
         const err = await response.json().catch(() => ({}));
         lastError = err?.error?.message || `OpenAI API status ${response.status}`;
@@ -241,7 +281,6 @@ async function callOpenAIAPI(apiKey: string, systemPrompt: string, userMessage: 
 }
 
 async function callClaudeAPI(apiKey: string, systemPrompt: string, userMessage: string): Promise<string> {
-  // Try Claude 3.7 Sonnet (latest hybrid reasoning), fallback to Claude 3.5 Sonnet
   const models = ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022'];
   let lastError = '';
 
@@ -266,7 +305,7 @@ async function callClaudeAPI(apiKey: string, systemPrompt: string, userMessage: 
       if (response.ok) {
         const data = await response.json();
         const text = data.content?.[0]?.text;
-        if (text) return text;
+        if (text) return text.trim();
       } else {
         const err = await response.json().catch(() => ({}));
         lastError = err?.error?.message || `Claude API status ${response.status}`;

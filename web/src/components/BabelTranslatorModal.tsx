@@ -27,6 +27,7 @@ interface BabelMessage {
   translatedText: string;
   fromLang: string;
   toLang: string;
+  toLangCode: string;
   timestamp: number;
 }
 
@@ -42,7 +43,7 @@ export const BabelTranslatorModal: React.FC = () => {
   } = useVoiceStore() as any;
 
   const [langA, setLangA] = useState('en-US');
-  const [langB, setLangB] = useState('es-ES');
+  const [langB, setLangB] = useState('ur-PK');
   const [activeSpeaker, setActiveSpeaker] = useState<'personA' | 'personB' | null>(null);
   const [inputA, setInputA] = useState('');
   const [inputB, setInputB] = useState('');
@@ -54,32 +55,14 @@ export const BabelTranslatorModal: React.FC = () => {
   if (!isBabelModalOpen) return null;
 
   const langAObj = SUPPORTED_LANGUAGES.find(l => l.code === langA) || SUPPORTED_LANGUAGES[0];
-  const langBObj = SUPPORTED_LANGUAGES.find(l => l.code === langB) || SUPPORTED_LANGUAGES[1];
+  const langBObj = SUPPORTED_LANGUAGES.find(l => l.code === langB) || SUPPORTED_LANGUAGES[2];
 
   const checkApiKey = (): boolean => {
-    if (selectedAIProvider === 'free-local') return true;
-    
-    if (selectedAIProvider === 'gemini' && !apiKeys.geminiKey?.trim()) {
-      setAlertFeatureName('Babel Live Translator (Google Gemini)');
-      setIsKeyAlertOpen(true);
-      return false;
-    }
-    if (selectedAIProvider === 'openai' && !apiKeys.openaiKey?.trim()) {
-      setAlertFeatureName('Babel Live Translator (OpenAI GPT-4o)');
-      setIsKeyAlertOpen(true);
-      return false;
-    }
-    if (selectedAIProvider === 'claude' && !apiKeys.claudeKey?.trim()) {
-      setAlertFeatureName('Babel Live Translator (Anthropic Claude)');
-      setIsKeyAlertOpen(true);
-      return false;
-    }
-    return true;
+    return true; // We now have high-fidelity online free translation fallback as well as Gemini/GPT/Claude support
   };
 
   const handleTranslateAndSpeak = async (sender: 'personA' | 'personB', text: string) => {
     if (!text.trim()) return;
-    if (!checkApiKey()) return;
 
     const fromLangObj = sender === 'personA' ? langAObj : langBObj;
     const toLangObj = sender === 'personA' ? langBObj : langAObj;
@@ -103,6 +86,7 @@ export const BabelTranslatorModal: React.FC = () => {
         translatedText: translated,
         fromLang: fromLangObj.name,
         toLang: toLangObj.name,
+        toLangCode: toLangObj.code,
         timestamp: Date.now(),
       };
 
@@ -111,7 +95,7 @@ export const BabelTranslatorModal: React.FC = () => {
       if (sender === 'personA') setInputA('');
       else setInputB('');
 
-      // Speak the translation aloud in the receiver's language
+      // Speak the translation aloud in the receiver's authentic native language voice
       speakText(
         {
           text: translated,
@@ -233,9 +217,9 @@ export const BabelTranslatorModal: React.FC = () => {
                       ➔ {msg.translatedText}
                     </p>
                     <button
-                      onClick={() => speakText({ text: msg.translatedText, engine: ttsEngine, language: isA ? langB : langA, openaiKey: apiKeys?.openaiKey })}
+                      onClick={() => speakText({ text: msg.translatedText, engine: ttsEngine, language: msg.toLangCode || (isA ? langB : langA), openaiKey: apiKeys?.openaiKey })}
                       className="text-neutral-400 hover:text-white p-1"
-                      title="Replay Voice"
+                      title="Replay Authentic Voice"
                     >
                       <FontAwesomeIcon icon={faVolumeHigh} className="text-xs" />
                     </button>

@@ -1,6 +1,6 @@
 # 🎙️ VoiceFlow AI — Universal Voice Intelligence Studio (Web & Mobile)
 
-An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription Suite** built for cross-platform deployment across **Web** (Next.js 16 + React 19) and **Mobile** (React Native + whisper.cpp CoreML / NPU). Powered by **OpenAI Whisper**, **whisper.cpp** (C/C++ native engine), **Kokoro-82M Neural TTS**, and focused exclusively on the latest frontier models: **Google Gemini 2.5 / 2.0 Flash**, **OpenAI GPT-4o Flagship**, and **Anthropic Claude 3.7 Sonnet (Hybrid Reasoning)**.
+An intelligent, privacy-first, ultra-fast **Voice-to-Text & Speech Transcription Suite** built for cross-platform deployment across **Web** (Next.js 16 + React 19) and **Mobile** (React Native + whisper.cpp CoreML / NPU). Powered by **OpenAI Whisper**, **whisper.cpp** (C/C++ native engine), **Multilingual Neural TTS Engine**, and focused exclusively on the latest frontier models: **Google Gemini 2.5 / 2.0 Flash**, **OpenAI GPT-4o Flagship**, and **Anthropic Claude 3.7 Sonnet (Hybrid Reasoning)**.
 
 ---
 
@@ -37,6 +37,13 @@ VoiceFlow AI is equipped with the latest, highest-performing foundation models:
 
 ---
 
+## 🌍 Authentic Multilingual Translation & Voice Synthesis
+
+- **True Native Script Translation**: Translates accurately into native scripts (Urdu `اردو`, Arabic `العربية`, Hindi `हिन्दी`, Spanish `Español`, French `Français`, German `Deutsch`, Chinese `中文`, Japanese `日本語`, etc.).
+- **Authentic Neural Speech Engine**: Speaks aloud in native human pronunciation and accents using high-fidelity multilingual neural voice streams, ensuring Urdu is spoken in pure Urdu, Arabic in fluent Arabic, and Spanish in natural Spanish.
+
+---
+
 ## 🛠️ Multi-Platform Tech Stack
 
 | Layer | Web Application (`/web`) | Mobile Application (`/mobile`) |
@@ -46,7 +53,7 @@ VoiceFlow AI is equipped with the latest, highest-performing foundation models:
 | **STT Engine** | **Web Speech API + Groq Whisper Large-v3** | **`whisper.cpp` (C++) via `whisper.rn` (100% Offline)** |
 | **Hardware Accel** | **Web Audio API DSP Filter Nodes** | **Apple CoreML / Neural Engine & Android NPU** |
 | **Audio Processing** | **48kHz Web Audio DSP (85Hz HighPass, LowPass, Compressor, Notch)** | **`expo-av` + Native Hardware Microphones** |
-| **TTS Engine** | **Kokoro-82M + Edge Neural + Web Speech** | **Native Speech Synthesis / Kokoro** |
+| **TTS Engine** | **Multilingual Neural Stream + Kokoro-82M + Edge Neural + Web Speech** | **Native Speech Synthesis / Kokoro** |
 | **Iconography** | **Font Awesome SVG Icons (`@fortawesome/react-fontawesome`)** | **Vector Icons** |
 | **State Management** | **Zustand 5 (with IndexedDB / LocalStorage)** | **Zustand 5 (AsyncStorage)** |
 | **Document Export** | **jsPDF (Formal MoM & Transcript) + Canvas-Confetti** | **Native Share Sheet & PDF Exporter** |
@@ -64,7 +71,7 @@ VoiceFlow AI is equipped with the latest, highest-performing foundation models:
 - Automatically guards all AI features and tabs (**Polished**, **Summary**, **Translate**, **Mindmap**, **Repurpose**, **Ask AI**, **Babel Mode**), popping up an alert with 1-click key guides if no key is entered.
 
 ### 3. 🌐 2-Way "Babel Mode" (Live Duplex Universal Translator)
-- Two people speaking different languages into one device. Transcribes, translates, and speaks aloud using Neural TTS.
+- Two people speaking different languages into one device. Transcribes, translates into native script, and speaks aloud using authentic Neural Voice Synthesis.
 
 ### 4. 🔇 Multi-Stage DSP Noise Cancellation & Audio Clarity
 - Cuts low-frequency rumble (85Hz High-Pass), high-frequency fan hiss (8500Hz Low-Pass), 60Hz AC electrical hum, and dynamically compresses vocals.
